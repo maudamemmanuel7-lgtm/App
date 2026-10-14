@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Admission | Bright Future Academy</title><style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f1f5f9;
+        color: #1e293b;
+        padding: 20px;
+    }
+
+    header {
+        background-color: #123b6d;
+        color: white;
+        text-align: center;
+        padding: 25px 15px;
+        border-radius: 10px;
+    }
+
+    nav {
+        text-align: center;
+        padding: 20px 10px;
+    }
+
+    nav a {
+        color: #123b6d;
+        text-decoration: none;
+        font-weight: bold;
+        margin: 0 12px;
+    }
+
+    .form-box {
+        background-color: white;
+        max-width: 650px;
+        margin: 20px auto;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h2 {
+        color: #123b6d;
+        text-align: center;
+    }
+
+    .intro {
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    label {
+        display: block;
+        margin-top: 18px;
+        font-weight: bold;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        margin-top: 7px;
+        box-sizing: border-box;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 15px;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 25px;
+        padding: 14px;
+        background-color: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #1d4ed8;
+    }
+
+    #message {
+        text-align: center;
+        color: #166534;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        color: #475569;
+    }
+
+    @media (max-width: 600px) {
+        .form-box {
+            padding: 20px;
+        }
+
+        nav a {
+            display: inline-block;
+            margin: 8px;
+        }
+    }
+</style>
+
+</head><body><header>
+    <h1>Bright Future Academy</h1>
+    <p>Student Admission Portal</p>
+</header>
+
+<nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About Us</a>
+    <a href="register.html">Admission</a>
+</nav>
+
+<div class="form-box">
+
+    <h2>Student Admission Form</h2>
+
+    <p class="intro">
+        Please complete the form below to apply for admission.
+    </p>
+
+    <form id="admissionForm"> method="POST" action="/register">
+
+        <label for="fullname">Student's Full Name</label>
+        <input type="text" id="fullname" name="fullname" required>
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" id="dob" name="dob" required>
+
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+
+        <label for="class">Class Applying For</label>
+        <select id="class" name="class" required>
+            <option value="">Select class</option>
+            <option value="Creche">Creche</option>
+            <option value="Nursery">Nursery</option>
+            <option value="Kindergarten">Kindergarten</option>
+            <option value="Primary">Primary</option>
+            <option value="JHS">Junior High School</option>
+        </select>
+
+        <label for="guardian">Parent/Guardian's Full Name</label>
+        <input type="text" id="guardian" name="guardian" required>
+
+        <label for="phone">Parent/Guardian's Phone Number</label>
+        <input type="tel" id="phone" name="phone" required>
+
+        <label for="email">Parent/Guardian's Email (Optional)</label>
+        <input type="email" id="email" name="email">
+
+        <label for="address">Residential Address</label>
+        <textarea id="address" name="address" rows="3" required></textarea>
+
+        <button type="submit">Submit Application</button>
+
+    </form>
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+</div>
+
+<footer>
+    <p>&copy; 2026 Bright Future Academy. All rights reserved.</p>
+</footer>
+
+
+</body>
+</html>
