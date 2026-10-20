@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Media Gallery</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background: #004080;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        nav {
+            background: #222;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 10px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 15px;
+        }
+
+        .filters {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .filters button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background: #004080;
+            color: white;
+            cursor: pointer;
+        }
+
+        .filters button:hover {
+            background: #0066cc;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px #ccc;
+        }
+
+        .item img,
+        .item video {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .download {
+            display: inline-block;
+            background: #008000;
+            color: white;
+            padding: 10px 15px;
+            margin-top: 10px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .download:hover {
+            background: #005500;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #222;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Media Gallery</h1>
+    <p>Explore, watch and download pictures and videos.</p>
+</header>
+
+<nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+    <a href="/register">Admission</a>
+    <a href="/gallery">Gallery</a>
+</nav>
+
+<main>
+
+    <h2>Browse by Category</h2>
+
+    <div class="filters">
+        <button onclick="filterMedia('all')">All</button>
+
+        {% for category, category_name in categories.items() %}
+            <button onclick="filterMedia('{{ category }}')">
+                {{ category_name }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <h2>📸 Pictures and 🎬 Videos</h2>
+
+    <div class="gallery">
+
+        {% for item in media %}
+
+        <div class="item"
+             data-category="{{ item.category }}"
+             data-kind="{{ item.kind }}">
+
+            <h3>{{ item.name }}</h3>
+
+            <p>Category: {{ item.category_name }}</p>
+
+            {% if item.kind == "picture" %}
+
+                <img src="{{ item.url }}" alt="{{ item.name }}">
+
+                <a class="download"
+                   href="{{ item.url }}"
+                   download>
+                    Download Picture
+                </a>
+
+            {% else %}
+
+                <video controls preload="metadata">
+                    <source src="{{ item.url }}">
+                    Your browser does not support this video.
+                </video>
+
+                <a class="download"
+                   href="{{ item.url }}"
+                   download>
+                    Download Video
+                </a>
+
+            {% endif %}
+
+        </div>
+
+        {% else %}
+
+        <p class="empty">
+            No pictures or videos have been added yet.
+        </p>
+
+        {% endfor %}
+
+    </div>
+
+</main>
+
+<footer>
+    <p>Media Gallery</p>
+</footer>
+
+<script>
+    function filterMedia(category) {
+        const items = document.querySelectorAll(".item");
+
+        items.forEach(function(item) {
+            if (
+                category === "all" ||
+                item.dataset.category === category
+            ) {
+                item.style.display = "";
+            } else {
+                item.style.display = "none";
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
