@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Survey Responses</title>
+</head>
+<body>
+
+    <h1>Survey Responses</h1>
+
+    <h2>{{ survey.title }}</h2>
+
+    <p>{{ survey.description }}</p>
+
+    <h3>Total Students Responded: {{ total_responses }}</h3>
+
+    <hr>
+
+    {% if responses %}
+
+        {% for response in responses %}
+
+            <h3>{{ response.fullname }}</h3>
+
+            <p>Student ID: {{ response.student_id }}</p>
+
+            <p><strong>Question:</strong>
+                {{ response.question_text }}
+            </p>
+
+            <p><strong>Answer:</strong>
+                {{ response.response or "No answer" }}
+            </p>
+
+            <p><small>Submitted: {{ response.submitted_at }}</small></p>
+
+            <hr>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No students have responded to this survey yet.</p>
+
+    {% endif %}
+
+    <p>
+        <a href="{{ url_for('admin_surveys') }}">
+            Back to Surveys
+        </a>
+    </p>
+
+</body>
+</html>
+

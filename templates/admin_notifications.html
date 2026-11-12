@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Notification Centre</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body class="admin-notifications-page">
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>STUDENT MANAGEMENT PORTAL</p>
+        </div>
+
+        <div class="sidebar-section">Main</div>
+
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+
+        <div class="sidebar-section">School Management</div>
+
+        <a href="{{ url_for('manage_students') }}">👨‍🎓 Students</a>
+        <a href="{{ url_for('register_teacher') }}">➕ Register Teacher</a>
+        <a href="{{ url_for('manage_teachers') }}">👨‍🏫 Teachers</a>
+        <a href="{{ url_for('manage_classes') }}">🏫 Classes</a>
+        <a href="{{ url_for('manage_subjects') }}">📚 Subjects</a>
+        <a href="{{ url_for('manage_terms') }}">📅 Academic Terms</a>
+        <a href="{{ url_for('assign_teacher') }}">📝 Teacher Assignments</a>
+
+        <div class="sidebar-section">Academics</div>
+
+        <a href="{{ url_for('manage_results') }}">📊 Student Results</a>
+
+        <div class="sidebar-section">Finance</div>
+
+        <a href="/admin/fees">💰 Assign Fees</a>
+
+        <a href="{{ url_for('admin_payments') }}">
+            💳 Record Payments
+        </a>
+
+        <a href="{{ url_for('payment_history') }}">
+            📊 Payment History
+        </a>
+
+        <div class="sidebar-section">Engagement</div>
+
+        <a href="{{ url_for('admin_surveys') }}">📋 Surveys</a>
+
+        <a href="{{ url_for('admin_notifications') }}" class="active">
+            🔔 Notifications
+        </a>
+
+        <div class="sidebar-section">Account</div>
+
+        <a href="{{ url_for('change_password') }}">🔐 Change Password</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+
+    </aside>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <div class="topbar">
+
+            <div>
+                <h2>Notification Centre</h2>
+                <small>Manage school announcements</small>
+            </div>
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰ Menu
+            </button>
+
+        </div>
+
+        <section class="welcome-panel page-heading">
+            <h1>School Announcements</h1>
+            <p>
+                Communicate important information to students
+                and teachers through the MACOAC portal.
+            </p>
+        </section>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert
+                        {% if category == 'error' %}error{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- CREATE ANNOUNCEMENT -->
+        <section class="notification-form">
+
+            <div class="form-heading">
+                <h2>📢 Create Announcement</h2>
+                <p>
+                    Write an announcement and choose who should receive it.
+                </p>
+            </div>
+
+            <form method="POST"
+                  action="{{ url_for('admin_notifications') }}">
+
+                <label>Announcement Title</label>
+
+                <input type="text"
+                       name="title"
+                       placeholder="Enter announcement title"
+                       required>
+
+                <label>Message</label>
+
+                <textarea name="message"
+                          placeholder="Write your announcement here..."
+                          required></textarea>
+
+                <label>Target Audience</label>
+
+                <select name="target_audience" required>
+                    <option value="all">Everyone</option>
+                    <option value="students">Students Only</option>
+                    <option value="teachers">Teachers Only</option>
+                </select>
+
+                <button type="submit">
+                    📢 Publish Announcement
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- EXISTING ANNOUNCEMENTS -->
+        <section>
+
+            <h2 class="section-title">
+                Published Announcements
+            </h2>
+
+            {% if announcements %}
+
+                {% for announcement in announcements %}
+
+                    <div class="announcement-card">
+
+                        <div class="announcement-header">
+
+                            <div>
+                                <h3>{{ announcement.title }}</h3>
+
+                                <div class="announcement-meta">
+                                    Published by:
+                                    {{ announcement.username }}
+                                    |
+                                    {{ announcement.created_at }}
+                                </div>
+                            </div>
+
+                            <span class="audience">
+                                {% if announcement.target_audience == 'all' %}
+                                    Everyone
+                                {% elif announcement.target_audience == 'students' %}
+                                    Students
+                                {% else %}
+                                    Teachers
+                                {% endif %}
+                            </span>
+
+                        </div>
+
+                        <div class="announcement-message">
+                            {{ announcement.message }}
+                        </div>
+
+                        <div class="announcement-actions">
+
+                            <a class="btn btn-edit"
+                               href="{{ url_for(
+                                   'edit_announcement',
+                                   announcement_id=announcement.id
+                               ) }}">
+                                ✏️ Edit
+                            </a>
+
+                            <form method="POST"
+                                  action="{{ url_for(
+                                      'delete_announcement',
+                                      announcement_id=announcement.id
+                                  ) }}"
+                                  onsubmit="return confirm(
+                                      'Are you sure you want to delete this announcement?'
+                                  );">
+
+                                <button type="submit"
+                                        class="btn btn-delete">
+                                    🗑 Delete
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <h3>No announcements yet</h3>
+                    <p>
+                        Announcements you publish will appear here.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        <footer>
+            <p>© 2026 MACOAC. All Rights Reserved.</p>
+            <p>Student Management Portal</p>
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+
+        if (window.innerWidth <= 750) {
+            document.body.classList.toggle("sidebar-open");
+        } else {
+            sidebar.style.display =
+                sidebar.style.display === "none" ? "" : "none";
+        }
+    }
+
+    function closeSidebar() {
+        document.body.classList.remove("sidebar-open");
+    }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Student Results Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>Administrator Panel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="nav-heading">MAIN</p>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+            <p class="nav-heading">SCHOOL MANAGEMENT</p>
+            <a href="{{ url_for('manage_students') }}">Students</a>
+            <a href="{{ url_for('register_teacher') }}">Register Teacher</a>
+            <a href="{{ url_for('manage_teachers') }}">Teachers</a>
+            <a href="{{ url_for('manage_classes') }}">Classes</a>
+            <a href="{{ url_for('manage_subjects') }}">Subjects</a>
+            <a href="{{ url_for('manage_terms') }}">Academic Terms</a>
+            <a href="{{ url_for('assign_teacher') }}">Teacher Assignments</a>
+            <a href="{{ url_for('manage_results') }}" class="active">Student Results</a>
+
+            <p class="nav-heading">FINANCE</p>
+            <a href="{{ url_for('admin_fees') }}">Assign Fees</a>
+            <a href="{{ url_for('admin_payments') }}">Record Payments</a>
+            <a href="{{ url_for('payment_history') }}">Payment History</a>
+
+            <p class="nav-heading">OTHER</p>
+            <a href="{{ url_for('admin_surveys') }}">Surveys</a>
+            <a href="{{ url_for('change_password') }}">Change Password</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+
+        </nav>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h2>Student Results Management</h2>
+                <p>Review and publish students' academic results.</p>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE INTRODUCTION -->
+        <section class="welcome-panel">
+
+            <div>
+                <h1>Student Results</h1>
+                <p>
+                    Manage submitted results and control when students
+                    can view their academic performance.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="results-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- RESULTS SUMMARY -->
+        <section class="results-summary">
+
+            <div class="results-summary-card">
+                <span>Total Submitted Results</span>
+                <h2>{{ results|length }}</h2>
+            </div>
+
+        </section>
+
+
+        <!-- RESULTS TABLE -->
+        <section class="results-panel">
+
+            <div class="results-panel-heading">
+                <div>
+                    <h2>All Submitted Results</h2>
+                    <p>Review results and publish completed records.</p>
+                </div>
+            </div>
+
+            {% if results %}
+
+                <div class="results-table-wrapper">
+
+                    <table class="results-table">
+
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Class</th>
+                                <th>Subject</th>
+                                <th>Academic Year</th>
+                                <th>Term</th>
+                                <th>Exercises</th>
+                                <th>Assignments</th>
+                                <th>Examination</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for result in results %}
+
+                                <tr>
+                                    <td>{{ result['student_id'] }}</td>
+
+                                    <td class="student-name">
+                                        {{ result['fullname'] }}
+                                    </td>
+
+                                    <td>{{ result['class_name'] }}</td>
+
+                                    <td>{{ result['subject_name'] }}</td>
+
+                                    <td>{{ result['academic_year'] }}</td>
+
+                                    <td>{{ result['term_name'] }}</td>
+
+                                    <td>{{ result['class_exercises'] }}</td>
+
+                                    <td>{{ result['assignments'] }}</td>
+
+                                    <td>{{ result['examination'] }}</td>
+
+                                    <td class="result-total">
+                                        {{ "%.2f"|format(result['total']) }}
+                                    </td>
+
+                                    <td>
+
+                                        {% if result['status'] == 'draft' %}
+
+                                            <span class="result-status draft-status">
+                                                Draft
+                                            </span>
+
+                                            <form method="POST"
+                                                  action="{{ url_for('publish_result', result_id=result['id']) }}"
+                                                  class="publish-form">
+
+                                                <button type="submit"
+                                                        class="publish-button">
+                                                    Publish Result
+                                                </button>
+
+                                            </form>
+
+                                        {% else %}
+
+                                            <span class="result-status published-status">
+                                                Published
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-results">
+
+                    <h3>No Results Available</h3>
+
+                    <p>
+                        No student results have been entered yet.
+                        Submitted results will appear here.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+            <p>© MACOAC. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+
+    if (window.innerWidth <= 750) {
+
+        document.body.classList.toggle("sidebar-open");
+
+    } else {
+
+        sidebar.style.display =
+            sidebar.style.display === "none" ? "" : "none";
+
+    }
+
+}
+
+function closeSidebar() {
+    document.body.classList.remove("sidebar-open");
+}
+
+</script>
+
+</body>
+</html>
+

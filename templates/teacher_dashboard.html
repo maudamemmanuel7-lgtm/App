@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Teacher Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout teacher-layout">
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" oneclick="handleSidebarLink(event)">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>SCHOOL MANAGEMENT SYSTEM</p>
+        </div>
+
+        <div class="sidebar-section">Main</div>
+
+        <a href="{{ request.path }}" class="active">
+            📊 Dashboard
+        </a>
+
+        <a href="{{ url_for('teacher_notifications') }}">
+            🔔 Notifications
+        </a>
+
+        <div class="sidebar-section">Teaching</div>
+
+        <a href="#assignments">
+            📚 My Classes & Subjects
+        </a>
+
+        <a href="{{ url_for('teacher_results') }}">
+            📝 Enter Student Results
+        </a>
+
+        <div class="sidebar-section">Account</div>
+
+        <a href="{{ url_for('change_password') }}">
+            🔐 Change Password
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            🚪 Logout
+        </a>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+
+            <div class="topbar-left">
+
+                <button class="menu-toggle"
+                        onclick="toggleSidebar()">
+                    ☰ Menu
+                </button>
+
+                <div>
+                    <h2>Teacher Dashboard</h2>
+                    <small>MACOAC School Management System</small>
+                </div>
+
+            </div>
+
+            <div class="topbar-right">
+
+                <a href="{{ url_for('teacher_notifications') }}"
+                   class="notification-button"
+                   title="Notifications">
+                    🔔
+                </a>
+
+                <div class="admin-profile">
+
+                    <div class="profile-avatar">
+                        {% if teacher %}
+                            {{ teacher['fullname'][0]|upper }}
+                        {% else %}
+                            T
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {% if teacher %}
+                                {{ teacher['fullname'] }}
+                            {% else %}
+                                Teacher
+                            {% endif %}
+                        </strong>
+
+                        <small>Teacher Account</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- WELCOME PANEL -->
+        <section class="welcome-panel">
+
+            <h1>
+                Welcome,
+                {% if teacher %}
+                    {{ teacher['fullname'] }}
+                {% else %}
+                    Teacher
+                {% endif %}
+                !
+            </h1>
+
+            <p>
+                Manage your assigned classes, subjects and student results
+                from your teacher dashboard.
+            </p>
+
+        </section>
+
+
+        <!-- SUMMARY CARDS -->
+        <div class="teacher-summary-grid">
+
+            <div class="teacher-summary-card">
+                <span>Assigned Classes & Subjects</span>
+                <h2>{{ assignments|length }}</h2>
+            </div>
+
+            <div class="teacher-summary-card">
+                <span>Teacher ID</span>
+                <h2>
+                    {% if teacher %}
+                        {{ teacher['teacher_id'] }}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </h2>
+            </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS -->
+        <h2 class="section-title">Quick Actions</h2>
+
+        <div class="action-grid">
+
+            <a href="#assignments" class="action-card">
+                <h3>📚 My Classes</h3>
+                <p>View your assigned classes and subjects.</p>
+            </a>
+
+            <a href="{{ url_for('teacher_results') }}"
+               class="action-card">
+                <h3>📝 Enter Results</h3>
+                <p>Access student results management.</p>
+            </a>
+
+            <a href="{{ url_for('teacher_notifications') }}"
+               class="action-card">
+                <h3>🔔 Notifications</h3>
+                <p>View announcements from the school.</p>
+            </a>
+
+        </div>
+
+
+        <!-- ASSIGNED CLASSES -->
+        <section id="assignments">
+
+            <h2 class="section-title">
+                My Assigned Classes and Subjects
+            </h2>
+
+            <div class="teacher-table-card">
+
+                {% if assignments %}
+
+                <div class="table-responsive">
+
+                    <table class="teacher-table">
+
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Academic Year</th>
+                                <th>Subject</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for assignment in assignments %}
+
+                            <tr>
+                                <td>
+                                    {{ assignment['class_name'] }}
+                                </td>
+
+                                <td>
+                                    {{ assignment['academic_year'] }}
+                                </td>
+
+                                <td>
+                                    {{ assignment['subject_name'] }}
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {% else %}
+
+                <p class="empty-message">
+                    No classes or subjects have been assigned to you yet.
+                </p>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+
+        <footer class="portal-footer">
+            © MACOAC School Management System
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.querySelector(".teacher-layout .sidebar");
+
+    if (window.innerWidth <= 750) {
+        document.body.classList.toggle("teacher-sidebar-open");
+    } else {
+        sidebar.style.display =
+            sidebar.style.display === "none" ? "" : "none";
+    }
+}
+
+function closeSidebar() {
+    document.body.classList.remove("teacher-sidebar-open");
+}
+
+function handleSidebarLink(event) {
+    if (event.target.closest("a") && window.innerWidth <= 750) {
+        closeSidebar();
+    }
+}
+
+</script>
+
+</body>
+</html>
+

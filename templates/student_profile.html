@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - My Profile</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <main class="main-content">
+
+        <div class="student-information">
+
+            <h1 class="section-title">My Student Profile</h1>
+
+            <!-- STUDENT PHOTOGRAPH -->
+            <div style="text-align:center; margin-bottom:25px;">
+
+                {% if student["profile_photo"] %}
+
+                    <img
+                        src="{{ url_for('static', filename=student['profile_photo']) }}"
+                        alt="Student Photograph"
+                        style="width:150px; height:150px;
+                        border-radius:50%; object-fit:cover;
+                        border:5px solid #d9ad52;"
+                    >
+
+                {% else %}
+
+                    <div style="width:150px; height:150px;
+                        border-radius:50%; background:#102746;
+                        color:#d9ad52; display:flex;
+                        align-items:center; justify-content:center;
+                        margin:auto; font-size:45px;">
+                        👤
+                    </div>
+
+                    <p>No profile photograph uploaded yet.</p>
+
+                {% endif %}
+
+            </div>
+
+            <!-- PHOTO UPLOAD FORM -->
+            <form
+                action="{{ url_for('upload_student_photo') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                style="text-align:center; margin-bottom:30px;"
+            >
+
+                <input
+                    type="file"
+                    name="profile_photo"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    required
+                >
+
+                <br><br>
+
+                <button type="submit" class="btn">
+                    Upload Photograph
+                </button>
+
+            </form>
+
+            <!-- STUDENT DETAILS -->
+            <div class="student-info-grid">
+
+                <div class="student-info-card">
+                    <span>Full Name</span>
+                    <h3>{{ student["fullname"] }}</h3>
+                </div>
+
+                <div class="student-info-card">
+                    <span>Student ID</span>
+                    <h3>{{ student["student_id"] }}</h3>
+                </div>
+
+                <div class="student-info-card">
+                    <span>Gender</span>
+                    <h3>{{ student["gender"] }}</h3>
+                </div>
+
+                <div class="student-info-card">
+                    <span>Current Class</span>
+                    <h3>{{ student["current_class"] }}</h3>
+                </div>
+
+                <div class="student-info-card">
+                    <span>Academic Year</span>
+                    <h3>{{ student["academic_year"] }}</h3>
+                </div>
+
+            </div>
+
+            <a href="{{ url_for('dashboard') }}" class="btn">
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </main>
+
+</body>
+</html>
+

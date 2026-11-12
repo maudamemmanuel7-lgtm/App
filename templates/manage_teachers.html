@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Teacher Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>STUDENT MANAGEMENT PORTAL</p>
+        </div>
+
+        <div class="sidebar-section">Main</div>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+
+        <div class="sidebar-section">School Management</div>
+        <a href="{{ url_for('manage_students') }}">👨‍🎓 Students</a>
+        <a href="{{ url_for('register_teacher') }}">➕ Register Teacher</a>
+        <a href="{{ url_for('manage_teachers') }}" class="active">👨‍🏫 Teachers</a>
+        <a href="{{ url_for('manage_classes') }}">🏫 Classes</a>
+        <a href="{{ url_for('manage_subjects') }}">📚 Subjects</a>
+        <a href="{{ url_for('manage_terms') }}">📅 Academic Terms</a>
+        <a href="{{ url_for('assign_teacher') }}">📝 Teacher Assignments</a>
+
+        <div class="sidebar-section">Academics</div>
+        <a href="{{ url_for('manage_results') }}">📊 Student Results</a>
+
+        <div class="sidebar-section">Finance</div>
+        <a href="/admin/fees">💰 Assign Fees</a>
+
+        <div class="sidebar-section">Engagement</div>
+        <a href="{{ url_for('admin_surveys') }}">📋 Surveys</a>
+
+        <div class="sidebar-section">Account</div>
+        <a href="{{ url_for('change_password') }}">🔐 Change Password</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+
+            <div class="topbar-left">
+
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    ☰ Menu
+                </button>
+
+                <div>
+                    <h2>Teacher Management</h2>
+                    <small>MACOAC School Management System</small>
+                </div>
+
+            </div>
+
+            <div class="topbar-right">
+
+                <div class="admin-profile">
+                    <div class="profile-avatar">A</div>
+
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>System Admin</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- WELCOME PANEL -->
+        <section class="welcome-panel">
+
+            <h1>Teacher Management</h1>
+
+            <p>
+                Manage teacher records, monitor employment status
+                and maintain your school's teaching workforce.
+            </p>
+
+        </section>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="teacher-flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- PAGE HEADING -->
+        <div class="teacher-page-heading">
+
+            <div>
+                <h2 class="section-title">Registered Teachers</h2>
+                <p>View and manage all registered teaching staff.</p>
+            </div>
+
+            <a href="{{ url_for('register_teacher') }}"
+               class="teacher-register-button">
+                + Register New Teacher
+            </a>
+
+        </div>
+
+        <!-- TEACHER TABLE -->
+        <div class="teacher-management-card">
+
+            {% if teachers %}
+
+                <div class="teacher-management-wrapper">
+
+                    <table class="teacher-management-table">
+
+                        <thead>
+                            <tr>
+                                <th>Teacher ID</th>
+                                <th>Full Name</th>
+                                <th>Gender</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Account Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for teacher in teachers %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ teacher['teacher_id'] }}</strong>
+                                </td>
+
+                                <td>{{ teacher['fullname'] }}</td>
+                                <td>{{ teacher['gender'] }}</td>
+                                <td>{{ teacher['phone'] }}</td>
+                                <td>{{ teacher['email'] }}</td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('update_teacher_status', teacher_id=teacher['id']) }}"
+                                        onsubmit="return confirm('Are you sure you want to change this teacher’s status?');"
+                                        class="teacher-status-form"
+                                    >
+
+                                        <select
+                                            name="status"
+                                            class="teacher-status-select
+                                            {% if teacher['status'] == 'Active' %}status-active
+                                            {% elif teacher['status'] in ['On Leave', 'Suspended'] %}status-warning
+                                            {% else %}status-inactive{% endif %}"
+                                        >
+
+                                            <option value="Active"
+                                                {% if teacher['status'] == 'Active' %}selected{% endif %}>
+                                                Active
+                                            </option>
+
+                                            <option value="On Leave"
+                                                {% if teacher['status'] == 'On Leave' %}selected{% endif %}>
+                                                On Leave
+                                            </option>
+
+                                            <option value="Resigned"
+                                                {% if teacher['status'] == 'Resigned' %}selected{% endif %}>
+                                                Resigned
+                                            </option>
+
+                                            <option value="Terminated"
+                                                {% if teacher['status'] == 'Terminated' %}selected{% endif %}>
+                                                Terminated
+                                            </option>
+
+                                            <option value="Suspended"
+                                                {% if teacher['status'] == 'Suspended' %}selected{% endif %}>
+                                                Suspended
+                                            </option>
+
+                                        </select>
+
+                                        <button type="submit"
+                                                class="teacher-update-button">
+                                            Update
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="teacher-empty-state">
+                    <h3>No Teachers Found</h3>
+                    <p>No teachers have been registered yet.</p>
+
+                    <a href="{{ url_for('register_teacher') }}"
+                       class="teacher-register-button">
+                        Register First Teacher
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="teacher-management-footer">
+            <p>© 2026 MACOAC. All Rights Reserved.</p>
+            <p>Student Management Portal</p>
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector(".sidebar");
+
+        if (sidebar.style.display === "none") {
+            sidebar.style.display = "";
+        } else {
+            sidebar.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
+

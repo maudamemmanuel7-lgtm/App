@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Edit Announcement</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<main class="container">
+
+    <div class="card">
+
+        <h1>Edit Announcement</h1>
+        <p>Update the announcement details below.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert
+                        {% if category == 'error' %}error{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <label>Announcement Title</label>
+
+            <input type="text"
+                   name="title"
+                   value="{{ announcement.title }}"
+                   required>
+
+            <label>Message</label>
+
+            <textarea name="message"
+                      rows="8"
+                      required>{{ announcement.message }}</textarea>
+
+            <label>Target Audience</label>
+
+            <select name="target_audience" required>
+
+                <option value="all"
+                    {% if announcement.target_audience == 'all' %}selected{% endif %}>
+                    Everyone
+                </option>
+
+                <option value="students"
+                    {% if announcement.target_audience == 'students' %}selected{% endif %}>
+                    Students Only
+                </option>
+
+                <option value="teachers"
+                    {% if announcement.target_audience == 'teachers' %}selected{% endif %}>
+                    Teachers Only
+                </option>
+
+            </select>
+
+            <button type="submit">Save Changes</button>
+
+            <a href="{{ url_for('admin_notifications') }}"
+               class="btn btn-danger">
+                Cancel
+            </a>
+
+        </form>
+
+    </div>
+
+</main>
+
+</body>
+</html>
+

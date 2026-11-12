@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Class Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>School Management</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="sidebar-heading">MAIN</p>
+
+            <a href="{{ url_for('dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('admin_notifications') }}">
+                Notifications
+            </a>
+
+            <p class="sidebar-heading">SCHOOL MANAGEMENT</p>
+
+            <a href="{{ url_for('manage_students') }}">
+                Students
+            </a>
+
+            <a href="{{ url_for('manage_teachers') }}">
+                Teachers
+            </a>
+
+            <a href="{{ url_for('manage_classes') }}" class="active">
+                Classes
+            </a>
+
+            <a href="{{ url_for('manage_subjects') }}">
+                Subjects
+            </a>
+
+            <a href="{{ url_for('manage_terms') }}">
+                Academic Terms
+            </a>
+
+            <a href="{{ url_for('assign_teacher') }}">
+                Teacher Assignments
+            </a>
+
+            <a href="{{ url_for('manage_results') }}">
+                Results
+            </a>
+
+            <a href="{{ url_for('admin_fees') }}">
+                Fees Management
+            </a>
+
+            <a href="{{ url_for('admin_surveys') }}">
+                Surveys
+            </a>
+
+            <p class="sidebar-heading">ACCOUNT</p>
+
+            <a href="{{ url_for('change_password') }}">
+                Change Password
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h3>Class Management</h3>
+                <p>Manage school classes and academic years</p>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <section class="page-content">
+
+            <div class="class-page-heading">
+
+                <div>
+                    <h1>Class Management</h1>
+                    <p>
+                        Create classes and organise students by academic year.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="class-flash-message">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+
+            <!-- ADD CLASS FORM -->
+            <div class="class-form-card">
+
+                <div class="class-card-heading">
+                    <div>
+                        <h2>Add a New Class</h2>
+                        <p>Enter the details of the new class below.</p>
+                    </div>
+
+                    <div class="class-icon">＋</div>
+                </div>
+
+                <form method="POST" class="class-registration-form">
+
+                    <div class="class-form-group">
+                        <label for="class_name">Class Name</label>
+
+                        <input
+                            type="text"
+                            id="class_name"
+                            name="class_name"
+                            placeholder="e.g. JHS 1"
+                            required
+                        >
+                    </div>
+
+                    <div class="class-form-group">
+                        <label for="academic_year">Academic Year</label>
+
+                        <input
+                            type="text"
+                            id="academic_year"
+                            name="academic_year"
+                            placeholder="e.g. 2026/2027"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="class-submit-button">
+                        Add Class
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- EXISTING CLASSES -->
+            <div class="class-list-card">
+
+                <div class="class-card-heading">
+                    <div>
+                        <h2>Existing Classes</h2>
+                        <p>View the classes currently registered in the system.</p>
+                    </div>
+                </div>
+
+                {% if classes %}
+
+                    <div class="class-table-wrapper">
+
+                        <table class="class-management-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Class Name</th>
+                                    <th>Academic Year</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for class in classes %}
+
+                                    <tr>
+                                        <td>
+                                            <strong>
+                                                {{ class['class_name'] }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="academic-year-label">
+                                                {{ class['academic_year'] }}
+                                            </span>
+                                        </td>
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="class-empty-state">
+                        <h3>No Classes Yet</h3>
+                        <p>
+                            You haven't added any classes.
+                            Use the form above to create your first class.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- FOOTER -->
+            <footer class="class-management-footer">
+                <p><strong>MACOAC School Management System</strong></p>
+                <p>Organising learning, building the future.</p>
+            </footer>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+</script>
+
+</body>
+</html>
+

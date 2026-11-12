@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - My Fees</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="student-fees-page">
+
+    <div class="fees-container">
+
+        <header class="fees-header">
+            <div>
+                <p class="fees-eyebrow">MACOAC STUDENT PORTAL</p>
+                <h1>My Fees and Payment History</h1>
+                <p>Monitor your school fees, payments and outstanding balances.</p>
+            </div>
+
+            <a href="{{ url_for('dashboard') }}" class="fees-back-btn">
+                ← Back to Dashboard
+            </a>
+        </header>
+
+        <!-- Overall Outstanding Balance -->
+        <section class="overall-balance-card">
+            <div>
+                <p>Overall Outstanding Balance</p>
+                <h2>GH₵ {{ "%.2f"|format(total_balance) }}</h2>
+                <span>Total unpaid school fees</span>
+            </div>
+
+            <div class="balance-icon">💰</div>
+        </section>
+
+        <!-- Current Academic Term -->
+        <section class="current-term-card">
+
+            <div class="fees-section-heading">
+                <div>
+                    <h2>Current Academic Term</h2>
+                    <p>Your current term's fee summary.</p>
+                </div>
+                <span class="term-icon">📅</span>
+            </div>
+
+            <div class="current-term-name">
+                {{ current_term["academic_year"] }} -
+                {{ current_term["term_name"] }}
+            </div>
+
+            <div class="term-balance-grid">
+
+                <div class="term-balance-item">
+                    <span class="balance-label">Current Term Outstanding Balance</span>
+                    <h3>GH₵ {{ "%.2f"|format(current_term_balance) }}</h3>
+                </div>
+
+                <div class="term-balance-item arrears-item">
+                    <span class="balance-label">Previous Term Arrears</span>
+                    <h3>GH₵ {{ "%.2f"|format(previous_term_arrears) }}</h3>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Fee Records -->
+        <section class="fee-history-section">
+
+            <div class="fees-section-heading">
+                <div>
+                    <h2>Fee Records and Payment History</h2>
+                    <p>A breakdown of your school fees and payments.</p>
+                </div>
+                <span class="term-icon">📋</span>
+            </div>
+
+            {% if fees %}
+
+            <div class="fee-table-wrapper">
+
+                <table class="student-fee-table">
+
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Academic Year</th>
+                            <th>Term</th>
+                            <th>Amount Due</th>
+                            <th>Amount Paid</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for fee in fees %}
+                        <tr>
+                            <td class="fee-description">
+                                {{ fee["description"] }}
+                            </td>
+
+                            <td>{{ fee["academic_year"] }}</td>
+                            <td>{{ fee["term_name"] }}</td>
+
+                            <td>
+                                GH₵ {{ "%.2f"|format(fee["amount_due"]) }}
+                            </td>
+
+                            <td class="amount-paid">
+                                GH₵ {{ "%.2f"|format(fee["amount_paid"]) }}
+                            </td>
+
+                            <td class="amount-balance">
+                                GH₵ {{ "%.2f"|format(fee["amount_due"] - fee["amount_paid"]) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            {% else %}
+
+            <div class="fees-empty-state">
+                <div class="empty-fees-icon">📂</div>
+                <h3>No Fee Records Available</h3>
+                <p>Your school fee records will appear here once they have been added.</p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+        <footer class="fees-footer">
+            <p>© MACOAC | Student Finance Portal</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
+

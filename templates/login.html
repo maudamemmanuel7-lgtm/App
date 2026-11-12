@@ -1,0 +1,319 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Login</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #102746, #1d4772);
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 430px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .login-header {
+            background: #102746;
+            color: white;
+            text-align: center;
+            padding: 35px 25px 25px;
+            border-bottom: 5px solid #d9ad52;
+        }
+
+        .login-logo {
+            width: 120px;
+            max-height: 100px;
+            object-fit: contain;
+            margin-bottom: 12px;
+        }
+
+        .login-header h1 {
+            color: #d9ad52;
+            margin: 5px 0;
+            font-size: 25px;
+        }
+
+        .login-header p {
+            color: #dce6f2;
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin: 8px 0 0;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        .login-body h2 {
+            color: #102746;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .login-description {
+            color: #718096;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .login-form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-form-group label {
+            display: block;
+            color: #263445;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .login-form-group input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce2ea;
+            border-radius: 7px;
+            box-sizing: border-box;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .login-form-group input:focus {
+            border-color: #d9ad52;
+            box-shadow: 0 0 0 3px rgba(217,173,82,0.15);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: #102746;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: #102746;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-button:hover {
+            background: #d9ad52;
+            color: #102746;
+        }
+
+        .login-footer {
+            text-align: center;
+            padding: 18px;
+            background: #f3f6fa;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .login-alert {
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .login-alert.error {
+            background: #fce8e8;
+            color: #a12626;
+        }
+
+        .login-alert.success {
+            background: #e5f5eb;
+            color: #176b38;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <!-- HEADER -->
+    <div class="login-header">
+
+        <img
+            src="{{ url_for('static', filename='media/macoac_logo.png') }}"
+            alt="MACOAC Logo"
+            class="login-logo"
+        >
+
+        <h1>MACOAC</h1>
+
+        <p>SCHOOL MANAGEMENT SYSTEM</p>
+
+    </div>
+
+
+    <!-- LOGIN FORM -->
+    <div class="login-body">
+
+        <h2>Welcome Back</h2>
+
+        <p class="login-description">
+            Sign in to access your school portal.
+        </p>
+
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% for category, message in messages %}
+
+                <div class="login-alert {{ category }}">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endwith %}
+
+
+        <form method="POST" action="{{ url_for('login') }}">
+
+            <div class="login-form-group">
+
+                <label for="username">
+                    Username or Student ID
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username or student ID"
+                    required
+                    autocomplete="username"
+                >
+
+            </div>
+
+
+            <div class="login-form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <div class="password-wrapper">
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                    >
+
+                    <button
+                        type="button"
+                        class="show-password"
+                        onclick="togglePassword()"
+                        id="passwordToggle"
+                    >
+                        Show
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <button type="submit" class="login-button">
+                Sign In
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <div class="login-footer">
+
+        © MACOAC School Management System
+
+        <br><br>
+
+        All Rights Reserved.
+
+    </div>
+
+</div>
+
+
+<script>
+
+function togglePassword() {
+
+    const password = document.getElementById("password");
+    const button = document.getElementById("passwordToggle");
+
+    if (password.type === "password") {
+
+        password.type = "text";
+        button.textContent = "Hide";
+
+    } else {
+
+        password.type = "password";
+        button.textContent = "Show";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
+

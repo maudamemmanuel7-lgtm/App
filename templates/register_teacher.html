@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Register Teacher</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f5f9;
+            min-height: 100vh;
+            padding: 35px 20px;
+        }
+
+        .page-container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            color: #142b50;
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .registration-card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            border-top: 5px solid #c9a227;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+        }
+
+        .card-heading {
+            margin-bottom: 25px;
+        }
+
+        .card-heading h2 {
+            color: #142b50;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .card-heading p {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 3px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #26374d;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #c9a227;
+            box-shadow: 0 0 0 3px rgba(201,162,39,0.12);
+        }
+
+        .form-note {
+            color: #8994a5;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .submit-button {
+            padding: 13px 25px;
+            background: #142b50;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-button:hover {
+            background: #c9a227;
+            color: #142b50;
+        }
+
+        .back-link {
+            color: #142b50;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: #c9a227;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .registration-card {
+                padding: 23px 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-container">
+
+        <div class="page-heading">
+            <h1>Register New Teacher</h1>
+            <p>Add a new teacher to the MACOAC school management system.</p>
+        </div>
+
+        <div class="registration-card">
+
+            <div class="card-heading">
+                <h2>Teacher Information</h2>
+                <p>Complete the form below to register a teacher.</p>
+            </div>
+
+            <form method="POST">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text"
+                               name="fullname"
+                               placeholder="Enter teacher's full name"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender:</label>
+                        <select name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number:</label>
+                        <input type="tel"
+                               name="phone"
+                               placeholder="Enter phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address:</label>
+                        <input type="email"
+                               name="email"
+                               placeholder="Enter email address">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Temporary Password:</label>
+                        <input type="password"
+                               name="password"
+                               placeholder="Create temporary password"
+                               required
+                               minlength="8">
+                        <p class="form-note">
+                            Password must contain at least 8 characters.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button type="submit" class="submit-button">
+                        Register Teacher
+                    </button>
+
+                    <a href="{{ url_for('dashboard') }}" class="back-link">
+                        ← Back to Dashboard
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
+

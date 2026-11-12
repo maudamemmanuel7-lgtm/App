@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Fee Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>Administrator Panel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="nav-heading">MAIN</p>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+            <p class="nav-heading">SCHOOL MANAGEMENT</p>
+            <a href="{{ url_for('manage_students') }}">Students</a>
+            <a href="{{ url_for('register_teacher') }}">Register Teacher</a>
+            <a href="{{ url_for('manage_teachers') }}">Teachers</a>
+            <a href="{{ url_for('manage_classes') }}">Classes</a>
+            <a href="{{ url_for('manage_subjects') }}">Subjects</a>
+            <a href="{{ url_for('manage_terms') }}">Academic Terms</a>
+            <a href="{{ url_for('assign_teacher') }}">Teacher Assignments</a>
+            <a href="{{ url_for('manage_results') }}">Student Results</a>
+
+            <p class="nav-heading">FINANCE</p>
+            <a href="{{ url_for('admin_fees') }}" class="active">Assign Fees</a>
+            <a href="{{ url_for('admin_payments') }}">Record Payments</a>
+            <a href="{{ url_for('payment_history') }}">Payment History</a>
+
+            <p class="nav-heading">OTHER</p>
+            <a href="{{ url_for('admin_surveys') }}">Surveys</a>
+            <a href="{{ url_for('change_password') }}">Change Password</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+
+        </nav>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h2>Fee Management</h2>
+                <p>Manage school fees and class fee assignments.</p>
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME PANEL -->
+        <section class="welcome-panel">
+
+            <div>
+                <h1>School Fee Management</h1>
+                <p>
+                    Assign academic fees to students by selecting
+                    their class and academic term.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="fee-messages">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- FEE ASSIGNMENT FORM -->
+        <section class="fee-management-panel">
+
+            <div class="fee-panel-heading">
+                <h2>Assign Fees to a Class</h2>
+                <p>
+                    Complete the form below to assign a fee
+                    to all students in the selected class.
+                </p>
+            </div>
+
+            <form method="POST" class="fee-assignment-form">
+
+                <div class="fee-form-grid">
+
+                    <div class="fee-field">
+                        <label for="class_id">Select Class</label>
+
+                        <select name="class_id" id="class_id" required>
+                            <option value="">-- Select Class --</option>
+
+                            {% for class in classes %}
+                                <option value="{{ class['id'] }}">
+                                    {{ class['class_name'] }} -
+                                    {{ class['academic_year'] }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+
+                    <div class="fee-field">
+                        <label for="term_id">Select Academic Term</label>
+
+                        <select name="term_id" id="term_id" required>
+                            <option value="">-- Select Term --</option>
+
+                            {% for term in terms %}
+                                <option value="{{ term['id'] }}">
+                                    {{ term['academic_year'] }} -
+                                    {{ term['term_name'] }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+
+                    <div class="fee-field">
+                        <label for="description">Fee Description</label>
+
+                        <input
+                            type="text"
+                            name="description"
+                            id="description"
+                            placeholder="e.g. Tuition, Examination Fee"
+                            required
+                        >
+                    </div>
+
+
+                    <div class="fee-field">
+                        <label for="amount">Amount (GH₵)</label>
+
+                        <input
+                            type="number"
+                            name="amount"
+                            id="amount"
+                            placeholder="Enter fee amount"
+                            min="0.01"
+                            step="0.01"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="fee-form-actions">
+
+                    <button type="submit" class="fee-submit-button">
+                        Assign Fees to Class
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- INFORMATION PANEL -->
+        <section class="fee-information-panel">
+
+            <div class="fee-information-icon">₵</div>
+
+            <div>
+                <h3>Important Information</h3>
+
+                <p>
+                    Fees assigned here are applied to students
+                    belonging to the selected class and academic term.
+                    Ensure that the class, term and amount are correct
+                    before submitting.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+            <p>© MACOAC. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+
+    if (window.innerWidth <= 750) {
+
+        document.body.classList.toggle("sidebar-open");
+
+    } else {
+
+        sidebar.style.display =
+            sidebar.style.display === "none" ? "" : "none";
+
+    }
+
+}
+
+function closeSidebar() {
+    document.body.classList.remove("sidebar-open");
+}
+
+</script>
+
+</body>
+</html>
+

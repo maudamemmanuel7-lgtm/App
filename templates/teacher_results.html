@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Enter Student Results - MACOAC</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="enter-results-page">
+
+<div class="results-entry-container">
+
+    <div class="results-entry-header">
+        <div>
+            <span class="results-entry-label">TEACHER PORTAL</span>
+            <h1>Student Results Entry</h1>
+            <p>Enter and manage students' academic scores.</p>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}"
+           class="results-back-button">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="results-instructions">
+        <h2>Assessment Weighting</h2>
+
+        <div class="weighting-grid">
+            <div class="weighting-item">
+                <strong>30%</strong>
+                <span>Class Exercises</span>
+            </div>
+
+            <div class="weighting-item">
+                <strong>20%</strong>
+                <span>Assignments</span>
+            </div>
+
+            <div class="weighting-item">
+                <strong>50%</strong>
+                <span>Examination</span>
+            </div>
+        </div>
+    </div>
+
+    {% if assignments and terms %}
+
+    <div class="results-selection-card">
+
+        <div class="results-section-heading">
+            <h2>Select Class, Subject and Academic Term</h2>
+            <p>Choose the class, subject and term before entering scores.</p>
+        </div>
+
+        <form method="POST" class="results-selection-form">
+
+            <div class="results-form-group">
+                <label>Class and Subject</label>
+
+                <select name="assignment" required>
+                    <option value="">Select Class and Subject</option>
+
+                    {% for assignment in assignments %}
+                    <option value="{{ assignment['class_id'] }}|{{ assignment['subject_id'] }}">
+                        {{ assignment['class_name'] }} -
+                        {{ assignment['subject_name'] }} -
+                        {{ assignment['academic_year'] }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <div class="results-form-group">
+                <label>Academic Term</label>
+
+                <select name="term_id" required>
+                    <option value="">Select Academic Term</option>
+
+                    {% for term in terms %}
+                    <option value="{{ term['id'] }}">
+                        {{ term['academic_year'] }} - {{ term['term_name'] }}
+                    </option>
+                    {% endfor %}
+
+                </select>
+            </div>
+
+            <button type="submit" class="results-primary-button">
+                Continue →
+            </button>
+
+        </form>
+
+    </div>
+
+    {% else %}
+
+    <div class="results-empty-state">
+        <h3>No Information Available</h3>
+        <p>No class assignments or academic terms are available.</p>
+    </div>
+
+    {% endif %}
+
+    {% if students is defined %}
+
+    <div class="student-scores-card">
+
+        <div class="student-scores-heading">
+            <div>
+                <span class="results-entry-label">SCORE ENTRY</span>
+                <h2>Students in {{ selected_assignment['class_name'] }}</h2>
+                <p>
+                    Subject: {{ selected_assignment['subject_name'] }}
+                </p>
+                <p>
+                    Academic Term: {{ selected_term['term_name'] }}
+                </p>
+            </div>
+        </div>
+
+        {% if students %}
+
+        <form method="POST">
+
+            <input type="hidden" name="assignment"
+                   value="{{ selected_assignment['class_id'] }}|{{ selected_assignment['subject_id'] }}">
+
+            <input type="hidden" name="term_id"
+                   value="{{ selected_term['id'] }}">
+
+            <div class="results-table-wrapper">
+
+                <table class="student-scores-table">
+
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Class Exercises<br><span>30%</span></th>
+                            <th>Assignments<br><span>20%</span></th>
+                            <th>Examination<br><span>50%</span></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <span class="student-id">
+                                    {{ student['student_id'] }}
+                                </span>
+                            </td>
+
+                            <td class="student-name">
+                                {{ student['fullname'] }}
+                            </td>
+
+                            <td>
+                                <input type="number"
+                                       name="class_exercises_{{ student['student_id'] }}"
+                                       min="0" max="100" step="0.01" required>
+                            </td>
+
+                            <td>
+                                <input type="number"
+                                       name="assignments_{{ student['student_id'] }}"
+                                       min="0" max="100" step="0.01" required>
+                            </td>
+
+                            <td>
+                                <input type="number"
+                                       name="examination_{{ student['student_id'] }}"
+                                       min="0" max="100" step="0.01" required>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="results-save-area">
+                <p>Ensure all scores are entered correctly before saving.</p>
+
+                <button type="submit"
+                        name="save_results"
+                        value="1"
+                        class="results-primary-button">
+                    Save Student Results
+                </button>
+            </div>
+
+        </form>
+
+        {% else %}
+
+        <div class="results-empty-state">
+            <h3>No Students Found</h3>
+            <p>No active students were found in this class.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+    <div class="results-entry-footer">
+        MACOAC | Teacher Results Management
+    </div>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Payment History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>Administrator Panel</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="nav-heading">MAIN</p>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+
+            <p class="nav-heading">SCHOOL MANAGEMENT</p>
+            <a href="{{ url_for('manage_students') }}">Students</a>
+            <a href="{{ url_for('register_teacher') }}">Register Teacher</a>
+            <a href="{{ url_for('manage_teachers') }}">Teachers</a>
+            <a href="{{ url_for('manage_classes') }}">Classes</a>
+            <a href="{{ url_for('manage_subjects') }}">Subjects</a>
+            <a href="{{ url_for('manage_terms') }}">Academic Terms</a>
+            <a href="{{ url_for('assign_teacher') }}">Teacher Assignments</a>
+            <a href="{{ url_for('manage_results') }}">Student Results</a>
+
+            <p class="nav-heading">FINANCE</p>
+            <a href="{{ url_for('admin_fees') }}">Assign Fees</a>
+            <a href="{{ url_for('admin_payments') }}">Record Payments</a>
+            <a href="{{ url_for('payment_history') }}" class="active">Payment History</a>
+
+            <p class="nav-heading">OTHER</p>
+            <a href="{{ url_for('admin_surveys') }}">Surveys</a>
+            <a href="{{ url_for('change_password') }}">Change Password</a>
+            <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+
+        </nav>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h2>Payment History</h2>
+                <p>Review all recorded student payments.</p>
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME PANEL -->
+        <section class="welcome-panel">
+
+            <div>
+                <h1>Student Payment Records</h1>
+                <p>
+                    View and monitor the financial transactions
+                    recorded for students across academic terms.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- PAYMENT HISTORY PANEL -->
+        <section class="history-panel">
+
+            <div class="history-panel-heading">
+
+                <div>
+                    <h2>All Payment Records</h2>
+                    <p>
+                        A record of payments received from students.
+                    </p>
+                </div>
+
+                <a href="{{ url_for('admin_payments') }}"
+                   class="history-action-button">
+                    Record New Payment
+                </a>
+
+            </div>
+
+
+            {% if payments %}
+
+                <div class="history-table-wrapper">
+
+                    <table class="history-table">
+
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Student ID</th>
+                                <th>Fee Description</th>
+                                <th>Academic Year</th>
+                                <th>Term</th>
+                                <th>Amount Paid</th>
+                                <th>Payment Method</th>
+                                <th>Reference</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for payment in payments %}
+
+                                <tr>
+
+                                    <td class="history-student-name">
+                                        {{ payment['fullname'] }}
+                                    </td>
+
+                                    <td>{{ payment['student_id'] }}</td>
+
+                                    <td>{{ payment['description'] }}</td>
+
+                                    <td>{{ payment['academic_year'] }}</td>
+
+                                    <td>{{ payment['term_name'] }}</td>
+
+                                    <td class="history-amount">
+                                        GH₵ {{ "%.2f"|format(payment['amount_paid']) }}
+                                    </td>
+
+                                    <td>
+                                        <span class="payment-method-label">
+                                            {{ payment['payment_method'] }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ payment['reference'] or "N/A" }}
+                                    </td>
+
+                                    <td>{{ payment['payment_date'] }}</td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-payment-history">
+
+                    <div class="history-empty-icon">₵</div>
+
+                    <h3>No Payment Records Yet</h3>
+
+                    <p>
+                        Payments recorded in the system will
+                        appear here for administrative review.
+                    </p>
+
+                    <a href="{{ url_for('admin_payments') }}"
+                       class="history-action-button">
+                        Record First Payment
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="dashboard-footer">
+            <p>© MACOAC. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+
+    if (window.innerWidth <= 750) {
+
+        document.body.classList.toggle("sidebar-open");
+
+    } else {
+
+        sidebar.style.display =
+            sidebar.style.display === "none" ? "" : "none";
+
+    }
+
+}
+
+function closeSidebar() {
+    document.body.classList.remove("sidebar-open");
+}
+
+</script>
+
+</body>
+</html>
+

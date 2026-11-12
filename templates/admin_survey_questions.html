@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Survey Questions</title>
+</head>
+<body>
+
+    <h1>Survey Questions</h1>
+
+    <h2>{{ survey.title }}</h2>
+    <p>{{ survey.description }}</p>
+
+    <hr>
+
+    <h2>Add New Question</h2>
+
+    <form method="POST">
+
+        <label>Question:</label><br>
+        <textarea name="question_text" required></textarea><br><br>
+
+        <label>Question Type:</label><br>
+        <select name="question_type" required>
+            <option value="text">Text</option>
+            <option value="multiple_choice">Multiple Choice</option>
+            <option value="rating">Rating</option>
+            <option value="yes_no">Yes/No</option>
+        </select><br><br>
+
+        <label>Options (for multiple choice):</label><br>
+        <textarea name="options" placeholder="Option 1, Option 2, Option 3"></textarea><br><br>
+
+        <label>
+            <input type="checkbox" name="is_required" checked>
+            Required question
+        </label><br><br>
+
+        <button type="submit">Add Question</button>
+
+    </form>
+
+    <hr>
+
+    <h2>Existing Questions</h2>
+
+    {% for question in questions %}
+        <p><strong>{{ loop.index }}. {{ question.question_text }}</strong></p>
+        <p>Type: {{ question.question_type }}</p>
+        <p>
+            {% if question.is_required %}
+                Required
+            {% else %}
+                Optional
+            {% endif %}
+        </p>
+        <hr>
+    {% else %}
+        <p>No questions have been added yet.</p>
+    {% endfor %}
+
+    <p><a href="{{ url_for('admin_surveys') }}">Back to Surveys</a></p>
+
+</body>
+</html>
+

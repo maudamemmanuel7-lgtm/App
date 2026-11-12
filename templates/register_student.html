@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Register Student</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f5f9;
+            min-height: 100vh;
+            padding: 35px 20px;
+        }
+
+        .page-container {
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            color: #142b50;
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        .registration-card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            border-top: 5px solid #c9a227;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+        }
+
+        .card-heading {
+            margin-bottom: 28px;
+        }
+
+        .card-heading h2 {
+            color: #142b50;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .card-heading p {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #26374d;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce2eb;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #c9a227;
+            box-shadow: 0 0 0 3px rgba(201,162,39,0.12);
+        }
+
+        .form-note {
+            color: #8994a5;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        .submit-button {
+            padding: 13px 25px;
+            background: #142b50;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-button:hover {
+            background: #c9a227;
+            color: #142b50;
+        }
+
+        .back-link {
+            color: #142b50;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: #c9a227;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .registration-card {
+                padding: 24px 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 19px;
+            }
+
+            .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-container">
+
+        <div class="page-heading">
+            <h1>Register New Student</h1>
+            <p>Add a new student to the MACOAC school management system.</p>
+        </div>
+
+        <div class="registration-card">
+
+            <div class="card-heading">
+                <h2>Student Information</h2>
+                <p>Complete the form below to register a student.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('register_student') }}">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="fullname">Full Name:</label>
+                        <input type="text"
+                               id="fullname"
+                               name="fullname"
+                               placeholder="Enter student's full name"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender:</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date_of_birth">Date of Birth:</label>
+                        <input type="date"
+                               id="date_of_birth"
+                               name="date_of_birth">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_class">Class:</label>
+                        <input type="text"
+                               id="current_class"
+                               name="current_class"
+                               placeholder="e.g. JHS 1"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="academic_year">Academic Year:</label>
+                        <input type="text"
+                               id="academic_year"
+                               name="academic_year"
+                               placeholder="e.g. 2026/2027"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Initial Password:</label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               placeholder="Create initial password"
+                               minlength="8"
+                               required>
+
+                        <p class="form-note">
+                            Password must contain at least 8 characters.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button type="submit" class="submit-button">
+                        Register Student
+                    </button>
+
+                    <a href="{{ url_for('manage_students') }}"
+                       class="back-link">
+                        ← Back to Student Management
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
+

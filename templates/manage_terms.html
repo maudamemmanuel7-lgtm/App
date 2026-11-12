@@ -1,0 +1,293 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Academic Term Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>School Management</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="sidebar-heading">MAIN</p>
+
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_notifications') }}">Notifications</a>
+
+            <p class="sidebar-heading">SCHOOL MANAGEMENT</p>
+
+            <a href="{{ url_for('manage_students') }}">Students</a>
+            <a href="{{ url_for('manage_teachers') }}">Teachers</a>
+            <a href="{{ url_for('manage_classes') }}">Classes</a>
+            <a href="{{ url_for('manage_subjects') }}">Subjects</a>
+
+            <a href="{{ url_for('manage_terms') }}" class="active">
+                Academic Terms
+            </a>
+
+            <a href="{{ url_for('assign_teacher') }}">Teacher Assignments</a>
+            <a href="{{ url_for('manage_results') }}">Results</a>
+            <a href="{{ url_for('admin_fees') }}">Fees Management</a>
+            <a href="{{ url_for('admin_surveys') }}">Surveys</a>
+
+            <p class="sidebar-heading">ACCOUNT</p>
+
+            <a href="{{ url_for('change_password') }}">Change Password</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h3>Academic Term Management</h3>
+                <p>Organise academic years and school terms</p>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <section class="page-content">
+
+            <div class="term-page-heading">
+                <div>
+                    <h1>Academic Term Management</h1>
+                    <p>
+                        Create and manage academic years and their corresponding terms.
+                    </p>
+                </div>
+            </div>
+
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="term-flash-message">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+
+            <!-- ADD ACADEMIC TERM -->
+            <div class="term-form-card">
+
+                <div class="term-card-heading">
+
+                    <div>
+                        <h2>Add New Academic Term</h2>
+                        <p>Provide the details of the academic term below.</p>
+                    </div>
+
+                    <div class="term-icon">＋</div>
+
+                </div>
+
+
+                <form method="POST" class="term-registration-form">
+
+                    <div class="term-form-group">
+
+                        <label for="academic_year">Academic Year</label>
+
+                        <input
+                            type="text"
+                            id="academic_year"
+                            name="academic_year"
+                            placeholder="e.g. 2026/2027"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="term-form-group">
+
+                        <label for="term_name">Term Name</label>
+
+                        <select id="term_name" name="term_name" required>
+
+                            <option value="">Select Term</option>
+
+                            <option value="First Term">First Term</option>
+
+                            <option value="Second Term">Second Term</option>
+
+                            <option value="Third Term">Third Term</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="term-form-group">
+
+                        <label for="start_date">Start Date</label>
+
+                        <input
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                        >
+
+                    </div>
+
+
+                    <div class="term-form-group">
+
+                        <label for="end_date">End Date</label>
+
+                        <input
+                            type="date"
+                            id="end_date"
+                            name="end_date"
+                        >
+
+                    </div>
+
+
+                    <button type="submit" class="term-submit-button">
+                        Add Academic Term
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- EXISTING TERMS -->
+            <div class="term-list-card">
+
+                <div class="term-card-heading">
+
+                    <div>
+                        <h2>Existing Academic Terms</h2>
+                        <p>View all academic terms registered in the system.</p>
+                    </div>
+
+                </div>
+
+
+                {% if terms %}
+
+                    <div class="term-table-wrapper">
+
+                        <table class="term-management-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Academic Year</th>
+                                    <th>Term</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for term in terms %}
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                {{ term['academic_year'] }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="term-name-label">
+                                                {{ term['term_name'] }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            {{ term['start_date'] or 'Not specified' }}
+                                        </td>
+
+                                        <td>
+                                            {{ term['end_date'] or 'Not specified' }}
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="term-empty-state">
+
+                        <h3>No Academic Terms Yet</h3>
+
+                        <p>
+                            No academic terms have been created.
+                            Use the form above to add your first academic term.
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- FOOTER -->
+            <footer class="term-management-footer">
+
+                <p><strong>MACOAC School Management System</strong></p>
+
+                <p>Organising learning, building the future.</p>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+</script>
+
+</body>
+</html>
+

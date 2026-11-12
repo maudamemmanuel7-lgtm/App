@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Student Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>STUDENT MANAGEMENT PORTAL</p>
+        </div>
+
+        <div class="sidebar-section">Main</div>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+
+        <div class="sidebar-section">School Management</div>
+        <a href="{{ url_for('manage_students') }}" class="active">👨‍🎓 Students</a>
+        <a href="{{ url_for('register_teacher') }}">➕ Register Teacher</a>
+        <a href="{{ url_for('manage_teachers') }}">👨‍🏫 Teachers</a>
+        <a href="{{ url_for('manage_classes') }}">🏫 Classes</a>
+        <a href="{{ url_for('manage_subjects') }}">📚 Subjects</a>
+        <a href="{{ url_for('manage_terms') }}">📅 Academic Terms</a>
+        <a href="{{ url_for('assign_teacher') }}">📝 Teacher Assignments</a>
+
+        <div class="sidebar-section">Academics</div>
+        <a href="{{ url_for('manage_results') }}">📊 Student Results</a>
+
+        <div class="sidebar-section">Finance</div>
+        <a href="/admin/fees">💰 Assign Fees</a>
+
+        <div class="sidebar-section">Engagement</div>
+        <a href="{{ url_for('admin_surveys') }}">📋 Surveys</a>
+
+        <div class="sidebar-section">Account</div>
+        <a href="{{ url_for('change_password') }}">🔐 Change Password</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+
+            <div class="topbar-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    ☰ Menu
+                </button>
+
+                <div>
+                    <h2>Student Management</h2>
+                    <small>MACOAC School Management System</small>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="admin-profile">
+                    <div class="profile-avatar">A</div>
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>System Admin</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PAGE INTRODUCTION -->
+        <section class="welcome-panel">
+            <h1>Student Management</h1>
+
+            <p>
+                Register students, manage student information
+                and monitor their account status.
+            </p>
+        </section>
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="student-flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- STUDENT MANAGEMENT HEADER -->
+        <div class="student-page-heading">
+
+            <div>
+                <h2 class="section-title">Registered Students</h2>
+                <p>View and manage all registered student records.</p>
+            </div>
+
+            <a href="{{ url_for('register_student') }}"
+               class="student-register-button">
+                + Register New Student
+            </a>
+
+        </div>
+
+        <!-- STUDENT TABLE -->
+        <div class="student-table-card">
+
+            {% if students %}
+
+                <div class="student-table-wrapper">
+
+                    <table class="student-management-table">
+
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Full Name</th>
+                                <th>Gender</th>
+                                <th>Class</th>
+                                <th>Academic Year</th>
+                                <th>Account Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for student in students %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ student["student_id"] }}</strong>
+                                </td>
+
+                                <td>{{ student["fullname"] }}</td>
+
+                                <td>{{ student["gender"] }}</td>
+
+                                <td>{{ student["current_class"] }}</td>
+
+                                <td>{{ student["academic_year"] }}</td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('update_student_status', student_id=student['student_id']) }}"
+                                        onsubmit="return confirm('Are you sure you want to change this student’s status?');"
+                                        class="student-status-form"
+                                    >
+
+                                        <select
+                                            name="status"
+                                            class="student-status-select
+                                            {% if student['status'] == 'Active' %}status-active
+                                            {% elif student['status'] in ['Suspended'] %}status-warning
+                                            {% else %}status-inactive{% endif %}"
+                                        >
+
+                                            <option value="Active"
+                                                {% if student["status"] == "Active" %}selected{% endif %}>
+                                                Active
+                                            </option>
+
+                                            <option value="Withdrawn"
+                                                {% if student["status"] == "Withdrawn" %}selected{% endif %}>
+                                                Withdrawn
+                                            </option>
+
+                                            <option value="Graduated"
+                                                {% if student["status"] == "Graduated" %}selected{% endif %}>
+                                                Graduated
+                                            </option>
+
+                                            <option value="Suspended"
+                                                {% if student["status"] == "Suspended" %}selected{% endif %}>
+                                                Suspended
+                                            </option>
+
+                                            <option value="Transferred"
+                                                {% if student["status"] == "Transferred" %}selected{% endif %}>
+                                                Transferred
+                                            </option>
+
+                                        </select>
+
+                                        <button type="submit"
+                                                class="student-update-button">
+                                            Update
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            {% else %}
+
+                <div class="student-empty-state">
+                    <h3>No Students Found</h3>
+                    <p>No students have been registered yet.</p>
+
+                    <a href="{{ url_for('register_student') }}"
+                       class="student-register-button">
+                        Register First Student
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="student-management-footer">
+            <p>© 2026 MACOAC. All Rights Reserved.</p>
+            <p>Student Management Portal</p>
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.querySelector(".sidebar");
+
+        if (sidebar.style.display === "none") {
+            sidebar.style.display = "";
+        } else {
+            sidebar.style.display = "none";
+        }
+    }
+</script>
+
+</body>
+</html>
+

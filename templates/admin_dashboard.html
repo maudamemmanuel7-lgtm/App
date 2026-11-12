@@ -1,0 +1,273 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MACOAC - Administrator Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>STUDENT MANAGEMENT PORTAL</p>
+        </div>
+
+        <div class="sidebar-section">Main</div>
+        <a href="{{ url_for('dashboard') }}" class="active">🏠 Dashboard</a>
+
+        <div class="sidebar-section">School Management</div>
+        <a href="{{ url_for('manage_students') }}">👨‍🎓 Students</a>
+        <a href="{{ url_for('register_teacher') }}">➕ Register Teacher</a>
+        <a href="{{ url_for('manage_teachers') }}">👨‍🏫 Teachers</a>
+        <a href="{{ url_for('manage_classes') }}">🏫 Classes</a>
+        <a href="{{ url_for('manage_subjects') }}">📚 Subjects</a>
+        <a href="{{ url_for('manage_terms') }}">📅 Academic Terms</a>
+        <a href="{{ url_for('assign_teacher') }}">📝 Teacher Assignments</a>
+
+        <div class="sidebar-section">Academics</div>
+        <a href="{{ url_for('manage_results') }}">📊 Student Results</a>
+        
+<div class="sidebar-section">Finance</div>
+
+<a href="/admin/fees">
+    💰 Assign Fees
+</a>
+
+<a href="{{ url_for('admin_payments') }}">
+    💳 Record Payments
+</a>
+
+<a href="{{ url_for('payment_history') }}">
+    📊 Payment History
+</a>
+
+
+        <div class="sidebar-section">Engagement</div>
+
+<a href="{{ url_for('admin_surveys') }}">
+    📋 Surveys
+</a>
+
+<a href="{{ url_for('admin_notifications') }}">
+    🔔 Notifications
+</a>
+
+
+        <div class="sidebar-section">Account</div>
+        <a href="{{ url_for('change_password') }}">🔐 Change Password</a>
+        <a href="{{ url_for('logout') }}">🚪 Logout</a>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+
+            <div class="topbar-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    ☰ Menu
+                </button>
+
+                <div>
+                    <h2>Administrator Dashboard</h2>
+                    <small>MACOAC School Management System</small>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+
+                <button class="notification-button"
+                        onclick="toggleNotifications()"
+                        title="Notifications">
+                    🔔
+                </button>
+
+                <div class="admin-profile">
+                    <div class="profile-avatar">A</div>
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>System Admin</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- NOTIFICATION PANEL -->
+        <div class="notification-panel" id="notificationPanel">
+            <h3>Notifications</h3>
+            <p>Your notification centre will appear here.</p>
+        </div>
+
+        <!-- WELCOME PANEL -->
+        <section class="welcome-panel">
+            <h1>Welcome, Administrator!</h1>
+
+            <p>
+                Manage your school's students, teachers,
+                academic activities and finances from one place.
+            </p>
+        </section>
+
+        <!-- FINANCIAL OVERVIEW -->
+        <h2 class="section-title">School Financial Overview</h2>
+
+        <div class="dashboard-grid">
+
+            <div class="stat-card">
+                <h3>Total Fees Charged</h3>
+                <div class="value">
+                    GH₵ {{ "%.2f"|format(total_fees) }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Total Payments Received</h3>
+                <div class="value">
+                    GH₵ {{ "%.2f"|format(total_paid) }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Outstanding Debt</h3>
+                <div class="value">
+                    GH₵ {{ "%.2f"|format(outstanding) }}
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h3>Fee Collection Rate</h3>
+                <div class="value">
+                    {{ "%.2f"|format(collection_rate) }}%
+                </div>
+            </div>
+
+        </div>
+
+        <!-- STUDENT AND TEACHER OVERVIEW -->
+        <h2 class="section-title">Student and Teacher Overview</h2>
+
+        <div class="dashboard-grid account-overview-grid">
+
+            <a href="{{ url_for('manage_students', status='Active') }}"
+               class="stat-card">
+                <h3>Active Students</h3>
+                <div class="value">{{ total_active_students }}</div>
+            </a>
+
+            <a href="{{ url_for('manage_students', status='Inactive') }}"
+               class="stat-card">
+                <h3>Inactive Students</h3>
+                <div class="value">{{ total_inactive_students }}</div>
+            </a>
+
+            <a href="{{ url_for('manage_teachers', status='Active') }}"
+               class="stat-card">
+                <h3>Active Teachers</h3>
+                <div class="value">{{ total_active_teachers }}</div>
+            </a>
+
+            <a href="{{ url_for('manage_teachers', status='Inactive') }}"
+               class="stat-card">
+                <h3>Inactive Teachers</h3>
+                <div class="value">{{ total_inactive_teachers }}</div>
+            </a>
+
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <h2 class="section-title">Quick Actions</h2>
+
+        <div class="action-grid">
+
+            <a href="{{ url_for('manage_students') }}"
+               class="action-card">
+                <h3>👨‍🎓 Manage Students</h3>
+                <p>Register and manage student records.</p>
+            </a>
+
+            <a href="{{ url_for('register_teacher') }}"
+               class="action-card">
+                <h3>👨‍🏫 Register Teacher</h3>
+                <p>Create new teacher accounts.</p>
+            </a>
+
+            <a href="{{ url_for('manage_classes') }}"
+               class="action-card">
+                <h3>🏫 Manage Classes</h3>
+                <p>Organise classes and academic years.</p>
+            </a>
+
+            <a href="{{ url_for('manage_subjects') }}"
+               class="action-card">
+                <h3>📚 Manage Subjects</h3>
+                <p>Organise the school's subjects.</p>
+            </a>
+
+            <a href="{{ url_for('manage_results') }}"
+               class="action-card">
+                <h3>📊 Student Results</h3>
+                <p>Manage academic performance.</p>
+            </a>
+
+            <a href="{{ url_for('admin_surveys') }}"
+               class="action-card">
+                <h3>📋 Manage Surveys</h3>
+                <p>Create surveys and view responses.</p>
+            </a>
+
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2026 MACOAC. All Rights Reserved.</p>
+            <p>Student Management Portal</p>
+        </footer>
+
+    </main>
+
+</div>
+
+
+
+<script>
+    function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+
+    if (window.innerWidth <= 750) {
+        document.body.classList.toggle("sidebar-open");
+    } else {
+        sidebar.style.display =
+            sidebar.style.display === "none" ? "" : "none";
+    }
+}
+
+
+    function closeSidebar() {
+        document.body.classList.remove("sidebar-open");
+    }
+
+
+    function toggleNotifications() {
+        document.getElementById("notificationPanel")
+            .classList.toggle("show");
+    }
+</script>
+
+</body>
+</html>
+

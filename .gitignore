@@ -1,0 +1,7 @@
+admissions.db
+admissions_backup.db
+app_sqlite_backup.py
+migrate_database.py
+setup_database.py
+__pycache__/
+*.pyc

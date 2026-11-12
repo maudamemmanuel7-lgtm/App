@@ -1,0 +1,186 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - My Surveys</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            background: #f1f5f9;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #102a43;
+        }
+
+        .survey-page {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .survey-header {
+            background: #102a43;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .survey-header h1 {
+            margin: 0 0 10px;
+        }
+
+        .survey-header p {
+            margin: 0;
+            color: #e2e8f0;
+        }
+
+        .survey-management-panel {
+            background: white;
+            padding: 28px;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+        }
+
+        .survey-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .survey-card {
+            padding: 23px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid #d4af37;
+            border-radius: 12px;
+        }
+
+        .survey-card h3 {
+            color: #102a43;
+            margin-top: 0;
+        }
+
+        .survey-card p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .take-survey-button {
+            display: inline-block;
+            background: #102a43;
+            color: white;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .take-survey-button:hover {
+            background: #d4af37;
+            color: #102a43;
+        }
+
+        .empty-surveys {
+            text-align: center;
+            padding: 45px 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 25px;
+            color: #102a43;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        @media (max-width: 750px) {
+            .survey-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .survey-management-panel {
+                padding: 18px;
+            }
+
+            .survey-header {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="survey-page">
+
+    <div class="survey-header">
+        <h1>📋 My Surveys</h1>
+        <p>View and participate in available MACOAC school surveys.</p>
+    </div>
+
+    <div class="survey-management-panel">
+
+        <h2>Available Surveys</h2>
+        <p>Choose a survey below to participate.</p>
+
+        {% if surveys %}
+
+            <div class="survey-grid">
+
+                {% for survey in surveys %}
+
+                    <div class="survey-card">
+
+                        <h3>{{ survey["title"] }}</h3>
+
+                        <p>
+                            {{ survey["description"] }}
+                        </p>
+
+                        <a href="{{ url_for('take_survey', survey_id=survey['id']) }}"
+                           class="take-survey-button">
+                            Take Survey →
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-surveys">
+                <h3>📭 No Surveys Available</h3>
+
+                <p>
+                    There are currently no active surveys.
+                    Please check again later.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <a href="{{ url_for('dashboard') }}" class="back-button">
+        ← Back to Dashboard
+    </a>
+
+</div>
+
+</body>
+</html>
+

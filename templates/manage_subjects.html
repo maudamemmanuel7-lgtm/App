@@ -1,0 +1,254 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MACOAC - Subject Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <h2>MACOAC</h2>
+            <p>School Management</p>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <p class="sidebar-heading">MAIN</p>
+
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('admin_notifications') }}">Notifications</a>
+
+            <p class="sidebar-heading">SCHOOL MANAGEMENT</p>
+
+            <a href="{{ url_for('manage_students') }}">Students</a>
+            <a href="{{ url_for('manage_teachers') }}">Teachers</a>
+            <a href="{{ url_for('manage_classes') }}">Classes</a>
+
+            <a href="{{ url_for('manage_subjects') }}" class="active">
+                Subjects
+            </a>
+
+            <a href="{{ url_for('manage_terms') }}">Academic Terms</a>
+            <a href="{{ url_for('assign_teacher') }}">Teacher Assignments</a>
+            <a href="{{ url_for('manage_results') }}">Results</a>
+            <a href="{{ url_for('admin_fees') }}">Fees Management</a>
+            <a href="{{ url_for('admin_surveys') }}">Surveys</a>
+
+            <p class="sidebar-heading">ACCOUNT</p>
+
+            <a href="{{ url_for('change_password') }}">Change Password</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                ☰
+            </button>
+
+            <div>
+                <h3>Subject Management</h3>
+                <p>Manage the subjects offered by the school</p>
+            </div>
+
+        </header>
+
+
+        <!-- PAGE CONTENT -->
+        <section class="page-content">
+
+            <div class="subject-page-heading">
+                <div>
+                    <h1>Subject Management</h1>
+                    <p>
+                        Add, organise and manage the school's academic subjects.
+                    </p>
+                </div>
+            </div>
+
+
+            <!-- FLASH MESSAGES -->
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="subject-flash-message">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+
+            <!-- ADD SUBJECT FORM -->
+            <div class="subject-form-card">
+
+                <div class="subject-card-heading">
+
+                    <div>
+                        <h2>Add a New Subject</h2>
+                        <p>Enter the subject details below.</p>
+                    </div>
+
+                    <div class="subject-icon">＋</div>
+
+                </div>
+
+
+                <form method="POST" class="subject-registration-form">
+
+                    <div class="subject-form-group">
+
+                        <label for="subject_name">Subject Name</label>
+
+                        <input
+                            type="text"
+                            id="subject_name"
+                            name="subject_name"
+                            placeholder="e.g. Mathematics"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="subject-form-group">
+
+                        <label for="subject_code">Subject Code</label>
+
+                        <input
+                            type="text"
+                            id="subject_code"
+                            name="subject_code"
+                            placeholder="e.g. MTH101"
+                        >
+
+                        <small>
+                            Subject code is optional.
+                        </small>
+
+                    </div>
+
+
+                    <button type="submit" class="subject-submit-button">
+                        Add Subject
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- EXISTING SUBJECTS -->
+            <div class="subject-list-card">
+
+                <div class="subject-card-heading">
+
+                    <div>
+                        <h2>Existing Subjects</h2>
+                        <p>View all subjects registered in the system.</p>
+                    </div>
+
+                </div>
+
+
+                {% if subjects %}
+
+                    <div class="subject-table-wrapper">
+
+                        <table class="subject-management-table">
+
+                            <thead>
+                                <tr>
+                                    <th>Subject Name</th>
+                                    <th>Subject Code</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for subject in subjects %}
+
+                                    <tr>
+
+                                        <td>
+                                            <strong>
+                                                {{ subject['subject_name'] }}
+                                            </strong>
+                                        </td>
+
+                                        <td>
+                                            <span class="subject-code-label">
+                                                {{ subject['subject_code'] or 'N/A' }}
+                                            </span>
+                                        </td>
+
+                                    </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="subject-empty-state">
+                        <h3>No Subjects Yet</h3>
+
+                        <p>
+                            No subjects have been added.
+                            Use the form above to register your first subject.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- FOOTER -->
+            <footer class="subject-management-footer">
+
+                <p><strong>MACOAC School Management System</strong></p>
+
+                <p>Organising learning, building the future.</p>
+
+            </footer>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script>
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("show");
+}
+</script>
+
+</body>
+</html>
+

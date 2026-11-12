@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bright Future Academy</title><style>
+    <title>MA Covenant Academy</title><style>
     body {
         margin: 0;
         font-family: Arial, sans-serif;
@@ -113,6 +113,7 @@
     <a href="index.html">Home</a>
     <a href="about.html">About Us</a>
     <a href="register.html">Admission</a>
+    <a href="{{ url_for('login') }}">Portal Login</a>
     <a href="#academics">Academics</a>
     <a href="#contact">Contact</a>
     <a href="/gallery">Gallery</a>
@@ -123,6 +124,7 @@
     <p>Building bright minds and shaping tomorrow's leaders.</p>
     <p>We are committed to providing quality education in a supportive environment.</p>
     <a href="register.html" class="button">Apply for Admission</a>
+<a href="{{ url_for('login') }}" class="button">Access Student Portal</a>
 </section>
 
 <section class="section" id="academics">
@@ -143,7 +145,7 @@
 
 <section class="section" id="contact">
     <h2>Contact Us</h2>
-    <p>Phone: School phone number</p>
+    <p>Phone: 0543878305</p>
     <p>Email: School email address</p>
     <p>Location: School location</p>
 </section>
