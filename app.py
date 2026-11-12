@@ -94,6 +94,9 @@ class HybridRow(dict):
 
 
 def hybrid_row(cursor):
+    if cursor.description is None:
+        return tuple
+
     columns = [column.name for column in cursor.description]
     return lambda values: HybridRow(columns, values)
 
