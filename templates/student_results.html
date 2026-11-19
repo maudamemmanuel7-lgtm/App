@@ -8,6 +8,56 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .class-position-section {
+            margin: 24px 0;
+            padding: 22px;
+            border: 1px solid #dbe5f0;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f7fbff, #eef5ff);
+        }
+        .class-position-section h2 { margin: 0 0 6px; }
+        .class-position-section > p { margin: 0 0 16px; color: #5d6b7c; }
+        .class-position-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+        .class-position-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #e2eaf3;
+        }
+        .class-position-card h3 { margin: 0 0 5px; font-size: 15px; }
+        .class-position-card p { margin: 0; color: #64748b; font-size: 13px; }
+        .position-number {
+            min-width: 58px;
+            text-align: center;
+            padding: 10px 8px;
+            border-radius: 10px;
+            background: #e1efff;
+            color: #174ea6;
+            font-size: 22px;
+            font-weight: 800;
+        }
+        .position-aggregate { margin-top: 5px !important; font-weight: 600; }
+        .position-disabled-note {
+            margin: 24px 0;
+            padding: 14px 18px;
+            border-radius: 10px;
+            background: #f5f6f8;
+            color: #596579;
+        }
+        @media (max-width: 600px) {
+            .class-position-section { padding: 16px; }
+            .class-position-card { align-items: flex-start; }
+        }
+    </style>
 </head>
 
 <body class="student-results-page">
@@ -25,6 +75,39 @@
                 ← Back to Dashboard
             </a>
         </header>
+
+        {% if positions_enabled and report_terms %}
+        <section class="class-position-section">
+            <h2>My Class Position</h2>
+            <p>Position is based on your aggregate of published subject totals in {{ student_class }} for each academic term.</p>
+
+            <div class="class-position-grid">
+                {% for term in report_terms %}
+                    {% set position = class_positions.get(term['term_id']) %}
+                    <div class="class-position-card">
+                        <div>
+                            <h3>{{ term['academic_year'] }} — {{ term['term_name'] }}</h3>
+                            <p>Class: {{ student_class }}</p>
+                            {% if position %}
+                                <p class="position-aggregate">Aggregate: {{ "%.2f"|format(position['aggregate_marks']) }}</p>
+                            {% else %}
+                                <p>Position is not available yet.</p>
+                            {% endif %}
+                        </div>
+                        {% if position %}
+                            <div class="position-number">{{ position['class_position'] }}</div>
+                        {% else %}
+                            <div class="position-number">—</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% elif not positions_enabled %}
+        <div class="position-disabled-note">
+            Class positions are currently unavailable because the administrator has disabled automatic class positions.
+        </div>
+        {% endif %}
 
         {% if report_terms %}
         <section class="report-download-section">
@@ -48,10 +131,12 @@
                         <p>{{ term['term_name'] }}</p>
                     </div>
 
-                    <a href="{{ url_for('download_report_card', term_id=term['term_id']) }}"
-                       class="download-report-btn">
-                        Download PDF
-                    </a>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <a href="{{ url_for('view_report_card', term_id=term['term_id']) }}"
+                           class="download-report-btn">View Report Card</a>
+                        <a href="{{ url_for('download_report_card', term_id=term['term_id']) }}"
+                           class="download-report-btn">Download PDF</a>
+                    </div>
                 </div>
                 {% endfor %}
 

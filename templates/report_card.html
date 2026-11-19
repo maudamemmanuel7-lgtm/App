@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MACOAC | Academic Report Card</title>
+  <style>
+    :root {
+      --navy: #142b4a; --blue: #1d5d91; --gold: #d7a83e;
+      --ink: #263548; --muted: #68778a; --line: #dce4ed;
+      --pale: #f3f7fb; --green: #18794e;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px; background: #edf2f7; color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif; }
+    .report { max-width: 1100px; margin: auto; background: #fff; border-radius: 18px;
+      overflow: hidden; box-shadow: 0 14px 45px rgba(20,43,74,.12); }
+    .top-band { height: 9px; background: linear-gradient(90deg,var(--navy) 0 72%,var(--gold) 72%); }
+    .report-inner { padding: 34px 42px 30px; }
+    .school-header { display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      padding-bottom: 22px; border-bottom: 2px solid var(--line); }
+    .school-brand { display: flex; align-items: center; gap: 18px; }
+    .logo { width: 82px; height: 82px; object-fit: contain; }
+    .school-name { margin: 0; color: var(--navy); font-size: 27px; font-weight: 800; letter-spacing: .7px; }
+    .school-tagline { margin: 5px 0 0; color: var(--muted); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; }
+    .document-label { text-align: right; }
+    .document-label strong { display: block; color: var(--blue); font-size: 17px; letter-spacing: 1px; }
+    .document-label span { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .title-row { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 25px 0 18px; }
+    h1 { margin: 0; color: var(--navy); font-size: 25px; }
+    .term-pill { display: inline-block; padding: 8px 14px; border-radius: 30px; color: #795713;
+      background: #fff6df; font-size: 13px; font-weight: 700; }
+    .student-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+    .info-box { min-height: 70px; padding: 13px 15px; border: 1px solid var(--line);
+      border-radius: 10px; background: #fbfdff; }
+    .info-box label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 10px;
+      font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+    .info-box strong { color: var(--navy); font-size: 14px; }
+    .summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 20px 0 26px; }
+    .summary-card { padding: 16px; border-radius: 12px; background: var(--pale); border: 1px solid #e5edf5; }
+    .summary-card.position { color: #fff; background: linear-gradient(135deg,var(--navy),var(--blue)); border: 0; }
+    .summary-card label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 10px;
+      font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+    .summary-card.position label { color: #dce9f5; }
+    .summary-card strong { color: var(--navy); font-size: 23px; }
+    .summary-card.position strong { color: #fff; }
+    .summary-card small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .summary-card.position small { color: #dce9f5; }
+    .section-heading { display: flex; align-items: center; gap: 10px; margin: 8px 0 12px;
+      color: var(--navy); font-size: 15px; font-weight: 800; }
+    .section-heading:before { content: ""; width: 4px; height: 18px; border-radius: 4px; background: var(--gold); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead th { padding: 12px 10px; color: #fff; background: var(--navy); text-align: left;
+      font-size: 10px; letter-spacing: .45px; text-transform: uppercase; }
+    tbody td { padding: 11px 10px; border-bottom: 1px solid var(--line); }
+    tbody tr:nth-child(even) { background: #f7f9fc; }
+    td.number, th.number { text-align: center; }
+    td.subject { color: var(--navy); font-weight: 700; }
+    .total { color: var(--blue); font-weight: 800; }
+    .grade { display: inline-block; min-width: 30px; padding: 4px 7px; border-radius: 6px;
+      background: #e8f5ee; color: var(--green); font-weight: 800; text-align: center; }
+    .remarks { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+    .remark-box { min-height: 82px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; }
+    .remark-box strong { color: var(--navy); font-size: 11px; }
+    .remark-box p { margin: 12px 0 0; color: var(--ink); font-size: 12px; line-height: 1.55; }
+    .signature-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin-top: 34px; }
+    .signature { padding-top: 8px; border-top: 1px solid #8392a4; color: var(--muted); font-size: 11px; text-align: center; }
+    .footer { display: flex; justify-content: space-between; gap: 20px; margin-top: 28px; padding-top: 15px;
+      border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+    .actions { display: flex; justify-content: center; gap: 12px; margin: 20px auto; }
+    .btn { display: inline-block; padding: 11px 18px; border: 0; border-radius: 8px; background: var(--navy);
+      color: #fff; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .btn.secondary { background: #e4ebf3; color: var(--navy); }
+    .notice { margin: 14px 0 0; padding: 10px 12px; border-radius: 8px; background: #fff8e7;
+      color: #795713; font-size: 11px; }
+    @media (max-width: 760px) {
+      body { padding: 10px; } .report-inner { padding: 22px 16px; }
+      .school-header { align-items: flex-start; } .logo { width: 58px; height: 58px; }
+      .school-name { font-size: 20px; } .document-label strong { font-size: 12px; }
+      .student-grid, .summary-grid { grid-template-columns: repeat(2,1fr); }
+      .title-row { align-items: flex-start; flex-direction: column; }
+      .table-scroll { overflow-x: auto; } table { min-width: 720px; }
+    }
+    @media print {
+      @page { size: A4 landscape; margin: 10mm; }
+      body { padding: 0; background: #fff; }
+      .report { max-width: none; border-radius: 0; box-shadow: none; }
+      .report-inner { padding: 18px 22px; }
+      .actions { display: none !important; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <main class="report">
+    <div class="top-band"></div>
+    <div class="report-inner">
+      <header class="school-header">
+        <div class="school-brand">
+          <img class="logo" src="{{ url_for('static', filename='media/macoac_logo.png') }}" alt="MACOAC logo"
+               onerror="this.style.display='none'">
+          <div>
+            <p class="school-name">MACOAC</p>
+            <p class="school-tagline">Academic excellence • Character • Service</p>
+          </div>
+        </div>
+        <div class="document-label"><strong>OFFICIAL REPORT CARD</strong><span>Student Academic Record</span></div>
+      </header>
+
+      <div class="title-row">
+        <h1>Student Performance Report</h1>
+        <span class="term-pill">{{ term['academic_year'] }} · {{ term['term_name'] }}</span>
+      </div>
+
+      <section class="student-grid" aria-label="Student information">
+        <div class="info-box"><label>Student Name</label><strong>{{ student['fullname'] }}</strong></div>
+        <div class="info-box"><label>Student ID</label><strong>{{ student['student_id'] }}</strong></div>
+        <div class="info-box"><label>Class</label><strong>{{ student['current_class'] or '—' }}</strong></div>
+        <div class="info-box"><label>Academic Year</label><strong>{{ term['academic_year'] }}</strong></div>
+      </section>
+
+      <section class="summary-grid" aria-label="Performance summary">
+        <div class="summary-card position">
+          <label>Class Position</label>
+          <strong>{% if positions_enabled and position %}{{ position }}{% else %}—{% endif %}</strong>
+          <small>{% if positions_enabled and position %}Out of {{ class_size }} students{% elif not positions_enabled %}Disabled by school administrator{% else %}Not available for this term{% endif %}</small>
+        </div>
+        <div class="summary-card"><label>Aggregate Marks</label><strong>{{ '%.2f'|format(aggregate) }}</strong><small>Sum of published subject totals</small></div>
+        <div class="summary-card"><label>Overall Average</label><strong>{{ '%.2f'|format(average) }}%</strong><small>Across {{ results|length }} subjects</small></div>
+        <div class="summary-card"><label>Overall Grade</label><strong>{{ overall_grade }}</strong><small>{{ overall_interpretation }}</small></div>
+      </section>
+
+      <div class="section-heading">Subject Performance</div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th>Subject</th><th class="number">Class Exercises<br>(30%)</th><th class="number">Assignments<br>(20%)</th>
+            <th class="number">Examination<br>(50%)</th><th class="number">Total</th><th class="number">Grade</th><th>Interpretation</th>
+          </tr></thead>
+          <tbody>
+            {% for result in results %}
+            <tr>
+              <td class="subject">{{ result['subject_name'] }}</td>
+              <td class="number">{{ '%.2f'|format(result['class_exercises'] or 0) }}</td>
+              <td class="number">{{ '%.2f'|format(result['assignments'] or 0) }}</td>
+              <td class="number">{{ '%.2f'|format(result['examination'] or 0) }}</td>
+              <td class="number total">{{ '%.2f'|format(result['total']) }}</td>
+              <td class="number"><span class="grade">{{ result['grade'] }}</span></td>
+              <td>{{ result['interpretation'] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="remarks">
+        <div class="remark-box"><strong>CLASS TEACHER'S REMARKS</strong><p>{{ class_teacher_remark }}</p></div>
+        <div class="remark-box"><strong>HEADTEACHER'S REMARKS</strong><p>{{ headteacher_remark }}</p></div>
+      </section>
+
+      <section class="signature-row">
+        <div class="signature">Class Teacher's Signature</div>
+        <div class="signature">Headteacher's Signature</div>
+        <div class="signature">Parent / Guardian's Signature</div>
+      </section>
+      {% if not positions_enabled %}<p class="notice">Class position is not displayed because automatic class positions have been disabled by the school administrator.</p>{% endif %}
+      <footer class="footer"><span>MACOAC · Official Student Report</span><span>Generated from published academic results</span></footer>
+    </div>
+  </main>
+  <div class="actions">
+    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    <a class="btn secondary" href="{{ url_for('student_results') }}">Back to Results</a>
+  </div>
+</body>
+</html>

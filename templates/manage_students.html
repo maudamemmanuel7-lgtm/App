@@ -9,7 +9,52 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
-</head>
+
+    <style>
+        .student-actions-cell { white-space: nowrap; }
+        .student-actions-cell form { display: inline-flex; margin: 0; }
+        .student-archive-button {
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 7px; padding: 9px 14px; border: 1px solid #dc3545;
+            border-radius: 7px; background: #fff; color: #c82333;
+            font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: background .2s ease, color .2s ease, box-shadow .2s ease,
+                        transform .2s ease;
+        }
+        .student-archive-button:hover {
+            background: #dc3545; color: #fff;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, .2);
+            transform: translateY(-1px);
+        }
+        .student-archive-button:focus-visible {
+            outline: 3px solid rgba(220, 53, 69, .3); outline-offset: 2px;
+        }
+        .student-archived-badge {
+            display: inline-block; padding: 6px 11px; border-radius: 20px;
+            background: #eef0f2; color: #59636e; font-size: 12px; font-weight: 700;
+        }
+        .student-academic-links {
+            display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0;
+        }
+        .student-academic-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 15px; border-radius: 8px; color: #fff;
+            text-decoration: none; font-size: 13px; font-weight: 650;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+            transition: filter .2s ease, transform .2s ease;
+        }
+        .student-academic-link:hover {
+            color: #fff; filter: brightness(.92); transform: translateY(-2px);
+        }
+        .student-academic-link.settings { background: #2563eb; }
+        .student-academic-link.positions { background: #16834a; }
+        @media (max-width: 640px) {
+            .student-archive-button { padding: 8px 10px; }
+            .student-academic-links { flex-direction: column; align-items: stretch; }
+            .student-academic-link { justify-content: center; }
+        }
+    </style>
+\n</head>
 
 <body>
 
@@ -37,6 +82,8 @@
 
         <div class="sidebar-section">Academics</div>
         <a href="{{ url_for('manage_results') }}">📊 Student Results</a>
+        <a href="{{ url_for('academic_settings') }}">⚙️ Academic Settings</a>
+        <a href="{{ url_for('admin_class_positions') }}">🏆 Class Positions</a>
 
         <div class="sidebar-section">Finance</div>
         <a href="/admin/fees">💰 Assign Fees</a>
@@ -89,6 +136,18 @@
             </p>
         </section>
 
+        <!-- ACADEMIC ADMINISTRATION QUICK LINKS -->
+        <div class="student-academic-links">
+            <a href="{{ url_for('academic_settings') }}"
+               class="student-academic-link settings">
+                <span aria-hidden="true">⚙️</span> Academic Settings
+            </a>
+            <a href="{{ url_for('admin_class_positions') }}"
+               class="student-academic-link positions">
+                <span aria-hidden="true">🏆</span> Class Positions
+            </a>
+        </div>
+
         <!-- FLASH MESSAGES -->
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -132,6 +191,7 @@
                                 <th>Class</th>
                                 <th>Academic Year</th>
                                 <th>Account Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
 
@@ -204,6 +264,20 @@
 
                                     </form>
 
+                                </td>
+
+                                <td class="student-actions-cell">
+                                    {% if student["status"] == "Archived" %}
+                                        <span class="student-archived-badge">Archived</span>
+                                    {% else %}
+                                        <form method="POST"
+                                              action="{{ url_for('archive_student', student_id=student['student_id']) }}"
+                                              onsubmit="return confirm('Archive this student? Their academic and financial history will be preserved, but their account will be deactivated.');">
+                                            <button type="submit" class="student-archive-button">
+                                                <span aria-hidden="true">▣</span> Archive
+                                            </button>
+                                        </form>
+                                    {% endif %}
                                 </td>
 
                             </tr>

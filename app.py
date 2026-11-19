@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, render_template_string, url_for, session, redirect, flash, send_file
 import psycopg
 from io import BytesIO
+from dotenv import load_dotenv
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib import colors
@@ -10,8 +11,14 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from werkzeug.utils import secure_filename
+import school_config
+load_dotenv()
 
 app = Flask(__name__)
+
+@app.context_processor
+def inject_school_config():
+    return {"school": school_config}
 STUDENT_UPLOAD_FOLDER = os.path.join(
     app.root_path, "static", "uploads", "students"
 )
@@ -161,6 +168,26 @@ def create_notification_tables():
 
 create_notification_tables()
 
+def create_school_settings_table():
+    connection = get_db_connection()
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS school_settings (
+            setting_key TEXT PRIMARY KEY,
+            setting_value TEXT NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    connection.execute("""
+        INSERT INTO school_settings (setting_key, setting_value)
+        VALUES ('automatic_class_positions', 'false')
+        ON CONFLICT (setting_key) DO NOTHING
+    """)
+    connection.commit()
+    connection.close()
+
+
+create_school_settings_table()
+
 def login_required(view):
     @wraps(view)
     def wrapped_view(*args, **kwargs):
@@ -184,6 +211,36 @@ def role_required(*allowed_roles):
 
         return wrapped_view
     return decorator
+
+def generate_academic_remark(average):
+    """Generate a report-card remark from the student's term average."""
+    if average >= 80:
+        return "Excellent performance. Keep up the outstanding work and continue striving for excellence."
+    elif average >= 70:
+        return "Very good performance. Your hard work is producing good results. Keep it up."
+    elif average >= 60:
+        return "Good performance. Continue working consistently and aim for even better results."
+    elif average >= 50:
+        return "Satisfactory performance. More effort, regular practice and focused study will lead to improvement."
+    elif average >= 40:
+        return "Fair performance. You need to strengthen your study habits and seek help in challenging subjects."
+    return "Your performance needs significant improvement. Attend lessons regularly, practise consistently and seek academic support."
+
+
+def generate_headteacher_remark(average):
+    """Generate a brief headteacher's comment using the same performance bands."""
+    if average >= 80:
+        return "A commendable achievement. Maintain this high standard."
+    elif average >= 70:
+        return "A strong performance. Keep focused and aim higher."
+    elif average >= 60:
+        return "A pleasing effort. Greater consistency can bring further success."
+    elif average >= 50:
+        return "A fair result. Put in more effort to improve next term."
+    elif average >= 40:
+        return "More commitment to learning is required. Work closely with your teachers."
+    return "Urgent improvement is needed. A focused study plan and consistent support are strongly encouraged."
+
 
 def calculate_grade(total):
     if total >= 80:
@@ -663,8 +720,24 @@ def student_results():
 
     connection = get_db_connection()
 
+    student = connection.execute("""
+        SELECT student_id, current_class, academic_year
+        FROM students
+        WHERE student_id = %s
+    """, (student_id,)).fetchone()
+
+    setting = connection.execute("""
+        SELECT setting_value
+        FROM school_settings
+        WHERE setting_key = 'automatic_class_positions'
+    """).fetchone()
+    positions_enabled = bool(
+        setting and str(setting["setting_value"]).lower() == "true"
+    )
+
     results = connection.execute("""
         SELECT
+            results.term_id,
             subjects.subject_name,
             academic_terms.academic_year,
             academic_terms.term_name,
@@ -679,8 +752,8 @@ def student_results():
         JOIN subjects ON results.subject_id = subjects.id
         JOIN academic_terms ON results.term_id = academic_terms.id
         WHERE results.student_id = %s
-        AND results.status = 'published'
-        ORDER BY academic_terms.id DESC
+          AND results.status = 'published'
+        ORDER BY academic_terms.id DESC, subjects.subject_name ASC
     """, (student_id,)).fetchall()
 
     report_terms = connection.execute("""
@@ -691,29 +764,177 @@ def student_results():
         FROM results
         JOIN academic_terms ON results.term_id = academic_terms.id
         WHERE results.student_id = %s
-        AND results.status = 'published'
+          AND results.status = 'published'
         ORDER BY academic_terms.id DESC
     """, (student_id,)).fetchall()
+
+    # Calculate the student's position separately for each published term.
+    # RANK() gives tied students the same position (1, 2, 2, 4).
+    class_positions = {}
+    if positions_enabled and student:
+        for term in report_terms:
+            ranked_student = connection.execute("""
+                WITH student_aggregates AS (
+                    SELECT
+                        s.student_id,
+                        SUM(r.class_exercises * 0.30 +
+                            r.assignments * 0.20 +
+                            r.examination * 0.50) AS aggregate_marks
+                    FROM students s
+                    JOIN results r ON r.student_id = s.student_id
+                    JOIN academic_terms t ON t.id = r.term_id
+                    WHERE r.term_id = %s
+                      AND r.status = 'published'
+                      AND s.current_class = %s
+                      AND s.academic_year = t.academic_year
+                      AND s.status = 'Active'
+                    GROUP BY s.student_id
+                ), ranked_students AS (
+                    SELECT
+                        student_id,
+                        aggregate_marks,
+                        RANK() OVER (ORDER BY aggregate_marks DESC) AS class_position
+                    FROM student_aggregates
+                )
+                SELECT aggregate_marks, class_position
+                FROM ranked_students
+                WHERE student_id = %s
+            """, (
+                term["term_id"],
+                student["current_class"],
+                student_id
+            )).fetchone()
+
+            if ranked_student:
+                class_positions[term["term_id"]] = dict(ranked_student)
 
     connection.close()
 
     results_with_grades = []
-
     for result in results:
         result_data = dict(result)
-
         grade, interpretation = calculate_grade(result_data["total"])
-
         result_data["grade"] = grade
         result_data["interpretation"] = interpretation
-
         results_with_grades.append(result_data)
 
     return render_template(
         "student_results.html",
         results=results_with_grades,
-        report_terms=report_terms
+        report_terms=report_terms,
+        positions_enabled=positions_enabled,
+        class_positions=class_positions,
+        student_class=student["current_class"] if student else None
     )
+
+@app.route("/student/report-card-view/<int:term_id>")
+@role_required("student")
+def view_report_card(term_id):
+    """Display a print-friendly HTML report card for one published term."""
+    student_id = session.get("student_id")
+    connection = get_db_connection()
+
+    student = connection.execute("""
+        SELECT student_id, fullname, current_class, academic_year
+        FROM students
+        WHERE student_id = %s
+    """, (student_id,)).fetchone()
+
+    term = connection.execute("""
+        SELECT id, academic_year, term_name
+        FROM academic_terms
+        WHERE id = %s
+    """, (term_id,)).fetchone()
+
+    results = connection.execute("""
+        SELECT
+            subjects.subject_name,
+            results.class_exercises,
+            results.assignments,
+            results.examination,
+            (results.class_exercises * 0.30 +
+             results.assignments * 0.20 +
+             results.examination * 0.50) AS total
+        FROM results
+        JOIN subjects ON results.subject_id = subjects.id
+        WHERE results.student_id = %s
+          AND results.term_id = %s
+          AND results.status = 'published'
+        ORDER BY subjects.subject_name ASC
+    """, (student_id, term_id)).fetchall()
+
+    settings = connection.execute("""
+        SELECT setting_value FROM school_settings
+        WHERE setting_key = 'automatic_class_positions'
+    """).fetchone()
+    positions_enabled = bool(
+        settings and str(settings["setting_value"]).lower() == "true"
+    )
+
+    position = None
+    class_size = None
+    if student and term and positions_enabled:
+        ranked = connection.execute("""
+            WITH student_aggregates AS (
+                SELECT s.student_id,
+                       SUM(r.class_exercises * 0.30 +
+                           r.assignments * 0.20 +
+                           r.examination * 0.50) AS aggregate_marks
+                FROM students s
+                JOIN results r ON r.student_id = s.student_id
+                JOIN academic_terms t ON t.id = r.term_id
+                WHERE r.term_id = %s
+                  AND r.status = 'published'
+                  AND s.current_class = %s
+                  AND s.academic_year = t.academic_year
+                  AND s.status = 'Active'
+                GROUP BY s.student_id
+            ), ranked_students AS (
+                SELECT student_id, aggregate_marks,
+                       RANK() OVER (ORDER BY aggregate_marks DESC) AS class_position,
+                       COUNT(*) OVER () AS class_size
+                FROM student_aggregates
+            )
+            SELECT aggregate_marks, class_position, class_size
+            FROM ranked_students
+            WHERE student_id = %s
+        """, (term_id, student["current_class"], student_id)).fetchone()
+        if ranked:
+            position = ranked["class_position"]
+            class_size = ranked["class_size"]
+
+    connection.close()
+
+    if student is None or term is None:
+        return "Student or academic term not found.", 404
+    if not results:
+        return "No published results are available for this term.", 404
+
+    prepared_results = []
+    overall_total = 0
+    for row in results:
+        item = dict(row)
+        item["grade"], item["interpretation"] = calculate_grade(item["total"])
+        overall_total += item["total"]
+        prepared_results.append(item)
+
+    average = overall_total / len(prepared_results)
+    overall_grade, overall_interpretation = calculate_grade(average)
+    class_teacher_remark = generate_academic_remark(average)
+    headteacher_remark = generate_headteacher_remark(average)
+
+    return render_template(
+        "report_card.html",
+        student=dict(student), term=dict(term), results=prepared_results,
+        positions_enabled=positions_enabled, position=position,
+        class_size=class_size, aggregate=overall_total, average=average,
+        overall_grade=overall_grade,
+        overall_interpretation=overall_interpretation,
+        class_teacher_remark=class_teacher_remark,
+        headteacher_remark=headteacher_remark
+    )
+
+
 
 @app.route("/student/report-card/<int:term_id>")
 @role_required("student")
@@ -844,6 +1065,8 @@ def download_report_card(term_id):
     average = overall_total / len(results)
 
     overall_grade, overall_interpretation = calculate_grade(average)
+    class_teacher_remark = generate_academic_remark(average)
+    headteacher_remark = generate_headteacher_remark(average)
 
     report_table = Table(
         table_data,
@@ -878,14 +1101,14 @@ def download_report_card(term_id):
     story.append(Spacer(1, 24))
 
     story.append(Paragraph(
-        "<b>Class Teacher's Remarks:</b> ______________________________",
+        f"<b>Class Teacher's Remarks:</b> {class_teacher_remark}",
         styles["Normal"]
     ))
 
     story.append(Spacer(1, 12))
 
     story.append(Paragraph(
-        "<b>Headteacher's Signature:</b> ______________________________",
+        f"<b>Headteacher's Remarks:</b> {headteacher_remark}",
         styles["Normal"]
     ))
 
@@ -1142,7 +1365,8 @@ def update_student_status(student_id):
         "Withdrawn",
         "Graduated",
         "Suspended",
-        "Transferred"
+        "Transferred",
+        "Archived"
     ]
 
     new_status = request.form.get("status")
@@ -1186,6 +1410,162 @@ def update_student_status(student_id):
     flash("Student status updated successfully.")
 
     return redirect(url_for("manage_students"))
+
+@app.route("/admin/students/<student_id>/archive", methods=["POST"])
+@role_required("admin")
+def archive_student(student_id):
+    """Safely remove a student from active use without destroying school history."""
+    connection = get_db_connection()
+    try:
+        student = connection.execute(
+            "SELECT student_id FROM students WHERE student_id = %s",
+            (student_id,)
+        ).fetchone()
+        if student is None:
+            flash("Student record not found.")
+        else:
+            connection.execute(
+                "UPDATE students SET status = 'Archived' WHERE student_id = %s",
+                (student_id,)
+            )
+            connection.execute(
+                "UPDATE users SET is_active = 0 WHERE student_id = %s",
+                (student_id,)
+            )
+            connection.commit()
+            flash("Student archived. Academic and financial history has been preserved.")
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+    return redirect(url_for("manage_students"))
+
+
+@app.route("/admin/teachers/<int:teacher_id>/archive", methods=["POST"])
+@role_required("admin")
+def archive_teacher(teacher_id):
+    """Safely archive a teacher while retaining assignments and audit history."""
+    connection = get_db_connection()
+    try:
+        teacher = connection.execute(
+            "SELECT user_id FROM teachers WHERE id = %s",
+            (teacher_id,)
+        ).fetchone()
+        if teacher is None:
+            flash("Teacher record not found.")
+        else:
+            connection.execute(
+                "UPDATE teachers SET status = 'Archived' WHERE id = %s",
+                (teacher_id,)
+            )
+            connection.execute(
+                "UPDATE users SET is_active = 0 WHERE id = %s",
+                (teacher["user_id"],)
+            )
+            connection.commit()
+            flash("Teacher archived. Related school records have been preserved.")
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
+    return redirect(url_for("manage_teachers"))
+
+
+@app.route("/admin/academic-settings", methods=["GET", "POST"])
+@role_required("admin")
+def academic_settings():
+    connection = get_db_connection()
+    if request.method == "POST":
+        enabled = "true" if request.form.get("automatic_class_positions") == "on" else "false"
+        connection.execute("""
+            UPDATE school_settings
+            SET setting_value = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE setting_key = 'automatic_class_positions'
+        """, (enabled,))
+        connection.commit()
+        flash("Automatic class positions " + ("enabled." if enabled == "true" else "disabled."))
+
+    setting = connection.execute("""
+        SELECT setting_value FROM school_settings
+        WHERE setting_key = 'automatic_class_positions'
+    """).fetchone()
+    connection.close()
+    enabled = bool(setting and setting["setting_value"].lower() == "true")
+    return render_template_string("""
+        <!doctype html><html><head><title>Academic Settings</title></head><body>
+        <h2>Academic Settings</h2>
+        {% with messages = get_flashed_messages() %}{% for message in messages %}<p>{{ message }}</p>{% endfor %}{% endwith %}
+        <form method="post">
+          <label><input type="checkbox" name="automatic_class_positions" {% if enabled %}checked{% endif %}>
+          Enable automatic class positions</label><br><br>
+          <button type="submit">Save Settings</button>
+        </form>
+        <p>Positions are calculated from the sum of published subject totals for each student,
+        within the same class, academic year and term. Equal aggregates share the same rank.</p>
+        <p><a href="{{ url_for('dashboard') }}">Back to dashboard</a></p></body></html>
+    """, enabled=enabled)
+
+
+@app.route("/admin/class-positions")
+@role_required("admin")
+def admin_class_positions():
+    term_id = request.args.get("term_id", type=int)
+    connection = get_db_connection()
+    setting = connection.execute("""
+        SELECT setting_value FROM school_settings
+        WHERE setting_key = 'automatic_class_positions'
+    """).fetchone()
+    enabled = bool(setting and setting["setting_value"].lower() == "true")
+    terms = connection.execute("""
+        SELECT id, academic_year, term_name FROM academic_terms ORDER BY id DESC
+    """).fetchall()
+    rows = []
+    selected_term = None
+    if enabled and term_id:
+        selected_term = connection.execute("""
+            SELECT id, academic_year, term_name FROM academic_terms WHERE id = %s
+        """, (term_id,)).fetchone()
+        if selected_term:
+            rows = connection.execute("""
+                WITH student_aggregates AS (
+                    SELECT s.student_id, s.fullname, s.current_class, s.academic_year,
+                           SUM(r.class_exercises * 0.30 + r.assignments * 0.20 +
+                               r.examination * 0.50) AS aggregate_marks
+                    FROM students s
+                    JOIN results r ON r.student_id = s.student_id
+                    WHERE r.term_id = %s AND r.status = 'published'
+                      AND s.status = 'Active'
+                      AND s.academic_year = (
+                          SELECT academic_year FROM academic_terms WHERE id = %s
+                      )
+                    GROUP BY s.student_id, s.fullname, s.current_class, s.academic_year
+                )
+                SELECT student_id, fullname, current_class, academic_year,
+                       aggregate_marks, RANK() OVER (
+                           PARTITION BY current_class, academic_year
+                           ORDER BY aggregate_marks DESC
+                       ) AS class_position
+                FROM student_aggregates
+                ORDER BY current_class, class_position, fullname
+            """, (term_id, term_id)).fetchall()
+    connection.close()
+    return render_template_string("""
+      <!doctype html><html><head><title>Class Positions</title></head><body>
+      <h2>Automatic Class Positions</h2>
+      {% if not enabled %}<p>Automatic class positions are currently disabled by the administrator.</p>
+      <p><a href="{{ url_for('academic_settings') }}">Enable them in Academic Settings</a></p>
+      {% else %}
+      <form method="get"><label>Academic term <select name="term_id" required>
+      {% for term in terms %}<option value="{{ term.id }}" {% if selected_term and selected_term.id == term.id %}selected{% endif %}>{{ term.academic_year }} - {{ term.term_name }}</option>{% endfor %}
+      </select></label><button type="submit">View Positions</button></form>
+      {% if rows %}<table border="1" cellpadding="6"><tr><th>Class</th><th>Position</th><th>Student ID</th><th>Student</th><th>Aggregate</th></tr>
+      {% for row in rows %}<tr><td>{{ row.current_class }}</td><td>{{ row.class_position }}</td><td>{{ row.student_id }}</td><td>{{ row.fullname }}</td><td>{{ '%.2f'|format(row.aggregate_marks) }}</td></tr>{% endfor %}</table>
+      {% elif selected_term %}<p>No published results found for this term.</p>{% endif %}
+      {% endif %}<p><a href="{{ url_for('dashboard') }}">Back to dashboard</a></p></body></html>
+    """, enabled=enabled, terms=terms, rows=rows, selected_term=selected_term)
+
 
 @app.route("/admin/register-student", methods=["GET", "POST"])
 @role_required("admin")
@@ -1363,7 +1743,8 @@ def update_teacher_status(teacher_id):
         "On Leave",
         "Resigned",
         "Terminated",
-        "Suspended"
+        "Suspended",
+        "Archived"
     ]
 
     new_status = request.form.get("status")
