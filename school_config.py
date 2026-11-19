@@ -2,10 +2,10 @@
 # SCHOOL WEBSITE CONFIGURATION
 # ==================================
 
-SCHOOL_NAME = "Bright Future Academy"
+SCHOOL_NAME = "MA Covenant Academy"
 SCHOOL_MOTTO = "Knowledge, Discipline, Excellence"
 
-SCHOOL_EMAIL = "info@brightfuture.edu.gh"
+SCHOOL_EMAIL = "info@MACOAC.edu.gh"
 SCHOOL_PHONE = "0200000000"
 
 SCHOOL_ADDRESS = "Accra, Ghana"
