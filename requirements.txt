@@ -2,3 +2,4 @@ Flask
 gunicorn
 reportlab
 psycopg[binary]
+python-dotenv
